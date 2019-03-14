@@ -9,6 +9,7 @@
 import java.io.DataInputStream;
 import java.io.PrintStream;
 import java.io.IOException;
+import java.net.MulticastSocket;
 import java.net.Socket;
 import java.net.ServerSocket;
 
@@ -17,13 +18,15 @@ class clientThread extends Thread {
   private DataInputStream is = null;
   private PrintStream os = null;
   private Socket clientSocket = null;
+  private MulticastSocket serverMultiSocket = null;
   private final clientThread[] threads;
   private int maxClientsCount;
 
-  public clientThread(Socket clientSocket, clientThread[] threads) {
-    this.clientSocket = clientSocket;
-    this.threads = threads;
-    maxClientsCount = threads.length;
+  public clientThread(Socket clientSocket, clientThread[] threads, MulticastSocket serverMultiSocket) {
+	  this.serverMultiSocket = serverMultiSocket;
+	  this.clientSocket = clientSocket;
+	  this.threads = threads;
+	  maxClientsCount = threads.length;
   }
 
   public void run() {

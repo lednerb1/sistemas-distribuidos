@@ -1,6 +1,6 @@
 # GNU Makefile
 
-JC = /usr/local/jdk1.8.0_131/bin/javac
+JC = javac
 JFLAGS = #-Xlint
 TARGET = MultiThreadChatServer.class MultiThreadChatClient.class clientThread.class
 

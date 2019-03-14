@@ -4,6 +4,8 @@
 import java.io.DataInputStream;
 import java.io.PrintStream;
 import java.io.IOException;
+import java.net.MulticastSocket;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.ServerSocket;
 
@@ -14,6 +16,7 @@ public class MultiThreadChatServer {
 
   // The server socket.
   private static ServerSocket serverSocket = null;
+  private static MulticastSocket serverMultiSocket = null;
   // The client socket.
   private static Socket clientSocket = null;
 
@@ -22,9 +25,10 @@ public class MultiThreadChatServer {
   private static final clientThread[] threads = new clientThread[maxClientsCount];
 
   public static void main(String args[]) {
-
+	
     // The default port number.
     int portNumber = 2222;
+    int multicastPort = 1997;
     if (args.length < 1) {
       System.out
           .println("Usage: java MultiThreadChatServer <portNumber>\n"
@@ -38,7 +42,10 @@ public class MultiThreadChatServer {
      * not choose a port less than 1023 if we are not privileged users (root).
      */
     try {
-      serverSocket = new ServerSocket(portNumber);
+	  serverMultiSocket = new MulticastSocket(multicastPort);
+	  InetAddress address = InetAddress.getByName("224.0.0.1");
+	  serverMultiSocket.joinGroup(address);	
+	  serverSocket = new ServerSocket(portNumber);
     } catch (IOException e) {
       System.out.println(e);
     }
@@ -53,7 +60,7 @@ public class MultiThreadChatServer {
         int i = 0;
         for (i = 0; i < maxClientsCount; i++) {
           if (threads[i] == null) {
-            (threads[i] = new clientThread(clientSocket, threads)).start();
+            (threads[i] = new clientThread(clientSocket, threads, serverMultiSocket)).start();
             break;
           }
         }
