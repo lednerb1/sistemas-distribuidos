@@ -1,6 +1,7 @@
 //Example 25
 
 import java.io.DataInputStream;
+import java.util.Scanner;
 import java.io.PrintStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -23,13 +24,15 @@ public class MultiThreadChatClient implements Runnable {
     private static BufferedReader inputLine = null;
     private static boolean closed = false;
     private static byte[] buffer = new byte[256];
-    
+    private static Scanner scan = null;
+
 
     public static void main(String[] args) {
 
         // The default port.
         int portNumber = 2222;
         int multicastPort = 1997;
+        scan = new Scanner(System.in);
         // The default host.
         String host = "localhost";
 
@@ -56,7 +59,7 @@ public class MultiThreadChatClient implements Runnable {
             inputLine = new BufferedReader(new InputStreamReader(System.in));
             os = new PrintStream(clientSocket.getOutputStream());
             is = new DataInputStream(clientSocket.getInputStream());
-            
+
         } catch (UnknownHostException e) {
             System.err.println("Don't know about host " + host);
         } catch (IOException e) {
@@ -68,7 +71,7 @@ public class MultiThreadChatClient implements Runnable {
          * If everything has been initialized then we want to write some data to the
          * socket we have opened a connection to on the port portNumber.
          */
-        if (clientSocket != null && os != null && is != null && clientMultiSocket != null && clientMultiSocket.isConnected()) {
+        if (clientSocket != null && os != null && is != null && clientMultiSocket != null) {
             try {
             	// Setup account using TCP Connection
             	try {
@@ -76,22 +79,27 @@ public class MultiThreadChatClient implements Runnable {
             		while(true){
             			line = is.readLine();
             			if(line != null){
-            				if(line.contains("Hello "))
-            					break;
+            				if(line.contains("Hello")){
+                      //System.out.println("DEBUG: " + line);
+                      break;
+                    }
             				System.out.println(line);
-            				os.println(inputLine.readLine().trim());
-            				
+                    line = null;
+            				// os.println(inputLine.readLine().trim());
+                    os.println(scan.nextLine().trim());
             			}
             		}
             	} catch (IOException e){
             		System.err.println(e);
             	}
-            	
-                /* Create a thread to read from the server. */
+            	// Once the server says Hello we're good to stop listening on the
+              // TCP socket and start listening on Multicast UDP socket
+              System.out.println("!!! Now listening on Multicast channel");
+                /* Create a thread to read from the Multicast channel. */
                 new Thread(new MultiThreadChatClient()).start();
-                
+
                 while (!closed) {
-                    // MAP: Efetua a leitura dzo teclado das novas mensagens do 
+                    // MAP: Efetua a leitura dzo teclado das novas mensagens do
                     //     cliente e envia para o servidor via socket;
                     // os.println(inputLine.readLine().trim());
                 	send();
@@ -110,7 +118,7 @@ public class MultiThreadChatClient implements Runnable {
 
     /*
      * Create a thread to read from the server. (non-Javadoc)
-     * 
+     *
      * @see java.lang.Runnable#run()
      */
     public void run() {
@@ -121,23 +129,27 @@ public class MultiThreadChatClient implements Runnable {
         String responseLine;
         try {
         	while(true){
+            System.out.println("...");
 	        	multicastData = new DatagramPacket(buffer, buffer.length);
 	            clientMultiSocket.receive(multicastData);
 	            responseLine = multicastData.getData().toString();
-	            while (responseLine != null) {
+	            if (responseLine != null) {
 	                System.out.println(responseLine);
 	                if (responseLine.indexOf("*** Bye") != -1) {
+                        closed = true;
 	                    break;
 	                }
 	            }
-	            closed = true;
+
         	}
         } catch (IOException e) {
             System.err.println("IOException:  " + e);
         }
     }
-    
+
     public static void send() {
     	String msg;
+      msg = scan.nextLine();
+      os.println(msg.trim());
     }
 }

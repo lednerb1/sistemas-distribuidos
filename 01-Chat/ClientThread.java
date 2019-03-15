@@ -9,29 +9,35 @@
 import java.io.DataInputStream;
 import java.io.PrintStream;
 import java.io.IOException;
+import java.net.*;
 import java.net.MulticastSocket;
 import java.net.Socket;
 import java.net.ServerSocket;
 
-class clientThread extends Thread {
+class ClientThread extends Thread {
 
   private DataInputStream is = null;
   private PrintStream os = null;
   private Socket clientSocket = null;
   private MulticastSocket serverMultiSocket = null;
-  private final clientThread[] threads;
+  private InetAddress group = null;
+  private int port = 0;
+  private final ClientThread[] threads;
   private int maxClientsCount;
 
-  public clientThread(Socket clientSocket, clientThread[] threads, MulticastSocket serverMultiSocket) {
-	  this.serverMultiSocket = serverMultiSocket;
+  public ClientThread(Socket clientSocket, ClientThread[] threads, MulticastSocket serverMultiSocket, InetAddress group, int portNumber) {
 	  this.clientSocket = clientSocket;
 	  this.threads = threads;
-	  maxClientsCount = threads.length;
+	  this.maxClientsCount = threads.length;
+    this.serverMultiSocket = serverMultiSocket;
+    this.group = group;
+    this.port = portNumber;
   }
 
   public void run() {
     int maxClientsCount = this.maxClientsCount;
-    clientThread[] threads = this.threads;
+    ClientThread[] threads = this.threads;
+    MulticastSocket serverMultiSocket = this.serverMultiSocket;
 
     try {
       /*
@@ -41,24 +47,41 @@ class clientThread extends Thread {
       os = new PrintStream(clientSocket.getOutputStream());
       os.println("Enter your name.");
       String name = is.readLine().trim();
+      System.out.println("...");
       os.println("Hello " + name
-          + " to our chat room.\nTo leave enter /quit in a new line");
+      + " to our chat room.\nTo leave enter /quit in a new line");
+
+      String msg = "*** A new user " + name + " entered the chat room !!! ***\n";
+      DatagramPacket alert = new DatagramPacket(msg.getBytes(), msg.length(),
+                                 this.group, this.port);
+      serverMultiSocket.send(alert);
+
+      /* This notified everyone that this client joined
       for (int i = 0; i < maxClientsCount; i++) {
         if (threads[i] != null && threads[i] != this) {
           threads[i].os.println("*** A new user " + name
               + " entered the chat room !!! ***");
         }
       }
+      */
       while (true) {
         String line = is.readLine();
         if (line.startsWith("/quit")) {
           break;
         }
+
+        DatagramPacket packet = new DatagramPacket(line.getBytes(), line.length(),
+                                    this.group, this.port);
+
+        serverMultiSocket.send(packet);
+        /* This used to send the same data to all clients one by one;
         for (int i = 0; i < maxClientsCount; i++) {
           if (threads[i] != null) {
             threads[i].os.println("<" + name + "&gr; " + line);
           }
         }
+        */
+
       }
       for (int i = 0; i < maxClientsCount; i++) {
         if (threads[i] != null && threads[i] != this) {
@@ -85,6 +108,7 @@ class clientThread extends Thread {
       os.close();
       clientSocket.close();
     } catch (IOException e) {
+
     }
   }
 }

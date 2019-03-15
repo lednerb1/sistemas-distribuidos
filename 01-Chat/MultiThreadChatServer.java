@@ -19,13 +19,13 @@ public class MultiThreadChatServer {
   private static MulticastSocket serverMultiSocket = null;
   // The client socket.
   private static Socket clientSocket = null;
-
+  private static InetAddress address = null;
   // This chat server can accept up to maxClientsCount clients' connections.
   private static final int maxClientsCount = 10;
-  private static final clientThread[] threads = new clientThread[maxClientsCount];
+  private static final ClientThread[] threads = new ClientThread[maxClientsCount];
 
   public static void main(String args[]) {
-	
+
     // The default port number.
     int portNumber = 2222;
     int multicastPort = 1997;
@@ -43,8 +43,8 @@ public class MultiThreadChatServer {
      */
     try {
 	  serverMultiSocket = new MulticastSocket(multicastPort);
-	  InetAddress address = InetAddress.getByName("224.0.0.1");
-	  serverMultiSocket.joinGroup(address);	
+	  address = InetAddress.getByName("224.0.0.1");
+	  serverMultiSocket.joinGroup(address);
 	  serverSocket = new ServerSocket(portNumber);
     } catch (IOException e) {
       System.out.println(e);
@@ -60,7 +60,7 @@ public class MultiThreadChatServer {
         int i = 0;
         for (i = 0; i < maxClientsCount; i++) {
           if (threads[i] == null) {
-            (threads[i] = new clientThread(clientSocket, threads, serverMultiSocket)).start();
+            (threads[i] = new ClientThread(clientSocket, threads, serverMultiSocket, address, portNumber)).start();
             break;
           }
         }
