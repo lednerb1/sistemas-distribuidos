@@ -75,8 +75,9 @@ public class MultiThreadChatClient implements Runnable {
             try {
             	// Setup account using TCP Connection
             	try {
-            		String line;
+
             		while(true){
+                  String line;
             			line = is.readLine();
             			if(line != null){
             				if(line.contains("Hello")){
@@ -84,7 +85,6 @@ public class MultiThreadChatClient implements Runnable {
                       break;
                     }
             				System.out.println(line);
-                    line = null;
             				// os.println(inputLine.readLine().trim());
                     os.println(scan.nextLine().trim());
             			}
@@ -126,9 +126,10 @@ public class MultiThreadChatClient implements Runnable {
          * Keep on reading from the socket till we receive "Bye" from the
          * server. Once we received that then we want to break.
          */
-        String responseLine;
+
         try {
         	while(true){
+            String responseLine;
 	        	multicastData = new DatagramPacket(buffer, buffer.length);
             clientMultiSocket.receive(multicastData);
             responseLine = new String(multicastData.getData(), multicastData.getOffset(), packet.getLength());
