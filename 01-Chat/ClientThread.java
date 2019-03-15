@@ -69,14 +69,16 @@ class ClientThread extends Thread {
       }
       */
       while (true) {
+        String in = is.readLine();
+        output.write(in, 0, in.length());
         String line = name+"-"+myId+"<";
-        line += is.readLine();
+        line += in;
         //System.out.println(line);
         if (line.startsWith("/quit")) {
           System.out.println("User " + myId + " leaving");
           break;
         }
-        output.write(line, 0, line.length());
+
         DatagramPacket packet = new DatagramPacket(line.getBytes(), line.length(),
                                     this.group, this.port);
 

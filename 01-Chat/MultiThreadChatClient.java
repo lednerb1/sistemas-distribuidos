@@ -142,9 +142,10 @@ public class MultiThreadChatClient implements Runnable {
             clientMultiSocket.receive(multicastData);
             firstIn = new String(multicastData.getData(), multicastData.getOffset(), multicastData.getLength());
             if(!firstIn.startsWith("***")){
-              data = firstIn.split("<"); // Parei aqui > Separar as strings, [0] = quem enviou, [2] = conteudo
+              data = firstIn.split("<"); // Parei aqui > Separar as strings, [0] = quem enviou, [1] = conteudo
               boolean first = true;
               for(String result : data){
+                System.out.println("Split");
                 if(first){
                   first = false;
                   fileName = result;
@@ -155,24 +156,25 @@ public class MultiThreadChatClient implements Runnable {
             }else {
               responseLine = firstIn;
             }
-	            if (responseLine != null) {
-                  try{
-                    if(fileName != null){
-                      output = new BufferedWriter(new FileWriter(fileName+".client", true));
-                      output.write(responseLine, 0, responseLine.length());
-                      output.close();
-                    }
-                  } catch (IOException e){
-                    System.err.println(e);
-                  }
-	                System.out.println(responseLine);
-	                if (responseLine.indexOf("*** Bye") != -1) {
-                      closed = true;
-	                    break;
-	                }
-                  if(output != null)
+            if (responseLine != "") {
+              System.out.println("...---...");
+                try{
+                  if(fileName != null){
+                    output = new BufferedWriter(new FileWriter(fileName+".client", true));
+                    output.write(responseLine, 0, responseLine.length());
                     output.close();
-	            }
+                  }
+                } catch (IOException e){
+                  System.err.println(e);
+                }
+                System.out.println(responseLine);
+                if (responseLine.indexOf("*** Bye") != -1) {
+                    closed = true;
+                    break;
+                }
+                if(output != null)
+                  output.close();
+            }
 
         	}
         } catch (IOException e) {
