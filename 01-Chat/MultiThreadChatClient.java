@@ -164,6 +164,7 @@ public class MultiThreadChatClient implements Runnable {
                     output = new BufferedWriter(new FileWriter(fileName+".client", true));
                     output.write(responseLine, 0, responseLine.length());
                     output.close();
+                    output = null;
                   }
                 } catch (IOException e){
                   System.err.println(e);

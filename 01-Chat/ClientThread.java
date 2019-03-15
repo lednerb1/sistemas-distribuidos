@@ -62,14 +62,7 @@ class ClientThread extends Thread {
 
       serverMultiSocket.send(alert);
       BufferedWriter output;
-      /* This notified everyone that this client joined
-      for (int i = 0; i < maxClientsCount; i++) {
-        if (threads[i] != null && threads[i] != this) {
-          threads[i].os.println("*** A new user " + name
-              + " entered the chat room !!! ***");
-        }
-      }
-      */
+
       while (true) {
         output = new BufferedWriter(new FileWriter(name+"-"+myId+".serv", true));
         String in = is.readLine();
