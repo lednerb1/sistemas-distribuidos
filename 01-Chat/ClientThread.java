@@ -80,13 +80,13 @@ class ClientThread extends Thread {
 
         buff = line.getBytes();
         if(buff.length > 4096){
-          DatagramPacket packet = new DatagramPacket(Arrays.copyOfRange(buff, 0, 4095), line.length(),
+          DatagramPacket packet = new DatagramPacket(Arrays.copyOfRange(buff, 0, 4095), 4096,
                                                      this.group, this.port);
           serverMultiSocket.send(packet);
           int i=0;
           do{
             i++;
-            packet = new DatagramPacket(Arrays.copyOfRange(buff, i*4096, Math.min(buff.length, i*4095+4096)), line.length(),
+            packet = new DatagramPacket(Arrays.copyOfRange(buff, i*4096, Math.min(buff.length, i*4095+4096)), Math.min(buff.length, i*4095+4096) - i*4096,
                                                        this.group, this.port);
             serverMultiSocket.send(packet);
           } while(buff.length > (i*4095+4096));
