@@ -105,9 +105,8 @@ public class MultiThreadChatClient implements Runnable {
                 new Thread(new MultiThreadChatClient()).start();
 
                 while (!closed) {
-                    // MAP: Efetua a leitura dzo teclado das novas mensagens do
-                    //     cliente e envia para o servidor via socket;
-                    // os.println(inputLine.readLine().trim());
+                  System.out.println("Press ENTER to send");
+                  scan.nextLine();
                 	send();
                 }
                 /*

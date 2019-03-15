@@ -62,9 +62,9 @@ class ClientThread extends Thread {
 
       serverMultiSocket.send(alert);
       BufferedWriter output;
+      output = new BufferedWriter(new FileWriter(name+"-"+myId+".serv", true));
 
       while (true) {
-        output = new BufferedWriter(new FileWriter(name+"-"+myId+".serv", true));
         String in = is.readLine();
         output.write(in, 0, in.length());
         output.write("\n");
