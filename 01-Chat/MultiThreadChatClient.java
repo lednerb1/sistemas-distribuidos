@@ -28,7 +28,7 @@ public class MultiThreadChatClient implements Runnable {
     private static boolean closed = false;
     private static byte[] buffer = new byte[4096];
     private static Scanner scan = null;
-
+    private static String name;
 
     public static void main(String[] args) {
 
@@ -38,7 +38,7 @@ public class MultiThreadChatClient implements Runnable {
         scan = new Scanner(System.in);
         // The default host.
         String host = "localhost";
-        String name = null;
+        name = null;
 
         if (args.length < 2) {
             System.out
@@ -161,7 +161,7 @@ public class MultiThreadChatClient implements Runnable {
               //System.out.println("...---...");
                 try{
                   if(fileName != null){
-                    output = new BufferedWriter(new FileWriter(fileName+".client", true));
+                    output = new BufferedWriter(new FileWriter(name+"-"+fileName+".client", true));
                     output.write(responseLine, 0, responseLine.length());
                     output.close();
                     output = null;
