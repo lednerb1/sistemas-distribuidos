@@ -54,6 +54,8 @@ class ClientThread extends Thread {
       String msg = "*** A new user " + name + " entered the chat room !!! ***\n";
       DatagramPacket alert = new DatagramPacket(msg.getBytes(), msg.length(),
                                  this.group, this.port);
+
+      System.out.println("Sending to " + this.group);
       serverMultiSocket.send(alert);
 
       /* This notified everyone that this client joined

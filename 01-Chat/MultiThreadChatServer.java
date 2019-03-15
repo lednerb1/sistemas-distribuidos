@@ -60,7 +60,7 @@ public class MultiThreadChatServer {
         int i = 0;
         for (i = 0; i < maxClientsCount; i++) {
           if (threads[i] == null) {
-            (threads[i] = new ClientThread(clientSocket, threads, serverMultiSocket, address, portNumber)).start();
+            (threads[i] = new ClientThread(clientSocket, threads, serverMultiSocket, address, multicastPort)).start();
             break;
           }
         }
