@@ -129,10 +129,9 @@ public class MultiThreadChatClient implements Runnable {
         String responseLine;
         try {
         	while(true){
-            System.out.println("...");
 	        	multicastData = new DatagramPacket(buffer, buffer.length);
             clientMultiSocket.receive(multicastData);
-            responseLine = new String(multicastData.getData());
+            responseLine = new String(multicastData.getData(), multicastData.getOffset(), packet.getLength());
 	            if (responseLine != null) {
 	                System.out.println(responseLine);
 	                if (responseLine.indexOf("*** Bye") != -1) {

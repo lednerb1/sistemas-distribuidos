@@ -47,7 +47,6 @@ class ClientThread extends Thread {
       os = new PrintStream(clientSocket.getOutputStream());
       os.println("Enter your name.");
       String name = is.readLine().trim();
-      System.out.println("...");
       os.println("Hello " + name
       + " to our chat room.\nTo leave enter /quit in a new line");
 
