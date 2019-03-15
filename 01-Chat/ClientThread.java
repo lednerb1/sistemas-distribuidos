@@ -7,6 +7,8 @@
  * all the clients about that and terminates.
  */
 import java.io.DataInputStream;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.PrintStream;
 import java.io.IOException;
 import java.net.*;
@@ -33,7 +35,7 @@ class ClientThread extends Thread {
     this.serverMultiSocket = serverMultiSocket;
     this.group = group;
     this.port = portNumber;
-    this.myId = id;
+    this.myId = id+1;
   }
 
   public void run() {
@@ -57,7 +59,7 @@ class ClientThread extends Thread {
                                  this.group, this.port);
 
       serverMultiSocket.send(alert);
-      BufferedWriter output = new new BufferedWriter(new FileWriter(name+"-"+myId+".serv", true));
+      BufferedWriter output = new BufferedWriter(new FileWriter(name+"-"+myId+".serv", true));
       /* This notified everyone that this client joined
       for (int i = 0; i < maxClientsCount; i++) {
         if (threads[i] != null && threads[i] != this) {
@@ -71,9 +73,10 @@ class ClientThread extends Thread {
         line += is.readLine();
         //System.out.println(line);
         if (line.startsWith("/quit")) {
+          System.out.println("User " + myId + " leaving");
           break;
         }
-        output.write(line);
+        output.write(line, 0, line.length());
         DatagramPacket packet = new DatagramPacket(line.getBytes(), line.length(),
                                     this.group, this.port);
 
@@ -87,13 +90,16 @@ class ClientThread extends Thread {
         */
 
       }
-      for (int i = 0; i < maxClientsCount; i++) {
-        if (threads[i] != null && threads[i] != this) {
-          threads[i].os.println("*** The user " + name
-              + " is leaving the chat room !!! ***");
-        }
-      }
-      os.println("*** Bye " + name + " ***");
+
+      output.close();
+
+      // for (int i = 0; i < maxClientsCount; i++) {
+      //   if (threads[i] != null && threads[i] != this) {
+      //     threads[i].os.println("*** The user " + name
+      //         + " is leaving the chat room !!! ***");
+      //   }
+      // }
+      // os.println("*** Bye " + name + " ***");
 
       /*
        * Clean up. Set the current thread variable to null so that a new client
@@ -112,7 +118,6 @@ class ClientThread extends Thread {
       os.close();
       clientSocket.close();
     } catch (IOException e) {
-
     }
   }
 }

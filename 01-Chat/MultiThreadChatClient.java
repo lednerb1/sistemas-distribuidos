@@ -4,6 +4,9 @@ import java.io.DataInputStream;
 import java.util.Scanner;
 import java.io.PrintStream;
 import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.net.*;
@@ -129,21 +132,46 @@ public class MultiThreadChatClient implements Runnable {
          * Keep on reading from the socket till we receive "Bye" from the
          * server. Once we received that then we want to break.
          */
-        BufferedWrite output = new
+
         try {
         	while(true){
+            BufferedWriter output = null;
             String[] data;
-            String responseLine;
+            String firstIn, responseLine = "", fileName = null;
 	        	multicastData = new DatagramPacket(buffer, buffer.length);
             clientMultiSocket.receive(multicastData);
-            data = new String(multicastData.getData(), multicastData.getOffset(), packet.getLength());
-            String = responseLine.split("<"); // Parei aqui > Separar as strings, [0] = quem enviou, [2] = conteudo
+            firstIn = new String(multicastData.getData(), multicastData.getOffset(), multicastData.getLength());
+            if(!firstIn.startsWith("***")){
+              data = firstIn.split("<"); // Parei aqui > Separar as strings, [0] = quem enviou, [2] = conteudo
+              boolean first = true;
+              for(String result : data){
+                if(first){
+                  first = false;
+                  fileName = result;
+                }else{
+                  responseLine += result;
+                }
+              }
+            }else {
+              responseLine = firstIn;
+            }
 	            if (responseLine != null) {
+                  try{
+                    if(fileName != null){
+                      output = new BufferedWriter(new FileWriter(fileName+".client", true));
+                      output.write(responseLine, 0, responseLine.length());
+                      output.close();
+                    }
+                  } catch (IOException e){
+                    System.err.println(e);
+                  }
 	                System.out.println(responseLine);
 	                if (responseLine.indexOf("*** Bye") != -1) {
-                        closed = true;
+                      closed = true;
 	                    break;
 	                }
+                  if(output != null)
+                    output.close();
 	            }
 
         	}
@@ -154,7 +182,11 @@ public class MultiThreadChatClient implements Runnable {
 
     public static void send() {
     	String msg;
-      while(msg = inputLine.readLine() != null)
-        os.println(msg);
+      try{
+        while((msg = inputLine.readLine()) != null)
+          os.println(msg);
+      } catch (IOException e){
+        System.err.println(e);
+      }
     }
 }
