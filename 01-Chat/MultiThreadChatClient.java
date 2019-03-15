@@ -35,6 +35,7 @@ public class MultiThreadChatClient implements Runnable {
         scan = new Scanner(System.in);
         // The default host.
         String host = "localhost";
+        String name = null;
 
         if (args.length < 2) {
             System.out
@@ -86,12 +87,14 @@ public class MultiThreadChatClient implements Runnable {
                     }
             				System.out.println(line);
             				// os.println(inputLine.readLine().trim());
-                    os.println(scan.nextLine().trim());
+                    name = scan.nextLine();
+                    os.println(name.trim());
             			}
             		}
             	} catch (IOException e){
             		System.err.println(e);
             	}
+              inputLine = new BufferedReader(new FileReader("chat"+name+".chat"));
             	// Once the server says Hello we're good to stop listening on the
               // TCP socket and start listening on Multicast UDP socket
               System.out.println("!!! Now listening on Multicast channel");
@@ -126,13 +129,15 @@ public class MultiThreadChatClient implements Runnable {
          * Keep on reading from the socket till we receive "Bye" from the
          * server. Once we received that then we want to break.
          */
-
+        BufferedWrite output = new
         try {
         	while(true){
+            String[] data;
             String responseLine;
 	        	multicastData = new DatagramPacket(buffer, buffer.length);
             clientMultiSocket.receive(multicastData);
-            responseLine = new String(multicastData.getData(), multicastData.getOffset(), packet.getLength());
+            data = new String(multicastData.getData(), multicastData.getOffset(), packet.getLength());
+            String = responseLine.split("<"); // Parei aqui > Separar as strings, [0] = quem enviou, [2] = conteudo
 	            if (responseLine != null) {
 	                System.out.println(responseLine);
 	                if (responseLine.indexOf("*** Bye") != -1) {
@@ -149,7 +154,7 @@ public class MultiThreadChatClient implements Runnable {
 
     public static void send() {
     	String msg;
-      msg = scan.nextLine();
-      os.println(msg);
+      while(msg = inputLine.readLine() != null)
+        os.println(msg);
     }
 }

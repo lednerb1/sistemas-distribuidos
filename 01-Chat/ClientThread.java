@@ -24,14 +24,16 @@ class ClientThread extends Thread {
   private int port = 0;
   private final ClientThread[] threads;
   private int maxClientsCount;
+  private int myId;
 
-  public ClientThread(Socket clientSocket, ClientThread[] threads, MulticastSocket serverMultiSocket, InetAddress group, int portNumber) {
+  public ClientThread(Socket clientSocket, ClientThread[] threads, MulticastSocket serverMultiSocket, InetAddress group, int portNumber, int id) {
 	  this.clientSocket = clientSocket;
 	  this.threads = threads;
 	  this.maxClientsCount = threads.length;
     this.serverMultiSocket = serverMultiSocket;
     this.group = group;
     this.port = portNumber;
+    this.myId = id;
   }
 
   public void run() {
@@ -55,7 +57,7 @@ class ClientThread extends Thread {
                                  this.group, this.port);
 
       serverMultiSocket.send(alert);
-
+      BufferedWriter output = new new BufferedWriter(new FileWriter(name+"-"+myId+".serv", true));
       /* This notified everyone that this client joined
       for (int i = 0; i < maxClientsCount; i++) {
         if (threads[i] != null && threads[i] != this) {
@@ -65,12 +67,13 @@ class ClientThread extends Thread {
       }
       */
       while (true) {
-        String line = is.readLine();
+        String line = name+"-"+myId+"<";
+        line += is.readLine();
         //System.out.println(line);
         if (line.startsWith("/quit")) {
           break;
         }
-
+        output.write(line);
         DatagramPacket packet = new DatagramPacket(line.getBytes(), line.length(),
                                     this.group, this.port);
 
