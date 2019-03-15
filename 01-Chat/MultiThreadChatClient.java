@@ -53,7 +53,7 @@ public class MultiThreadChatClient implements Runnable {
             // System.out.println("")
             // Start listening on Multicast server. Probably need a new port.
             clientMultiSocket = new MulticastSocket(multicastPort);
-            InetAddress address = InetAddress.getByName("224.0.0.1");
+            InetAddress address = InetAddress.getByName("224.0.2.10");
             clientMultiSocket.joinGroup(address);
             // --
             inputLine = new BufferedReader(new InputStreamReader(System.in));
