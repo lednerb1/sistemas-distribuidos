@@ -28,7 +28,7 @@ public class MultiThreadChatServer {
 
     // The default port number.
     int portNumber = 2222;
-    int multicastPort = 1997;
+    int multicastPort = 19970;
     if (args.length < 1) {
       System.out
           .println("Usage: java MultiThreadChatServer <portNumber>\n"
@@ -42,10 +42,10 @@ public class MultiThreadChatServer {
      * not choose a port less than 1023 if we are not privileged users (root).
      */
     try {
-	  serverMultiSocket = new MulticastSocket(multicastPort);
-	  address = InetAddress.getByName("224.0.0.1");
-	  serverMultiSocket.joinGroup(address);
-	  serverSocket = new ServerSocket(portNumber);
+  	  serverMultiSocket = new MulticastSocket(multicastPort);
+  	  address = InetAddress.getByName("224.0.0.1");
+  	  serverMultiSocket.joinGroup(address);
+  	  serverSocket = new ServerSocket(portNumber);
     } catch (IOException e) {
       System.out.println(e);
     }

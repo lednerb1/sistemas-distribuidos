@@ -66,6 +66,7 @@ class ClientThread extends Thread {
       */
       while (true) {
         String line = is.readLine();
+        //System.out.println(line);
         if (line.startsWith("/quit")) {
           break;
         }

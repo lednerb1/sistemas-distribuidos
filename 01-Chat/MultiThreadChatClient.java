@@ -23,7 +23,7 @@ public class MultiThreadChatClient implements Runnable {
 
     private static BufferedReader inputLine = null;
     private static boolean closed = false;
-    private static byte[] buffer = new byte[256];
+    private static byte[] buffer = new byte[4096];
     private static Scanner scan = null;
 
 
@@ -31,7 +31,7 @@ public class MultiThreadChatClient implements Runnable {
 
         // The default port.
         int portNumber = 2222;
-        int multicastPort = 1997;
+        int multicastPort = 19970;
         scan = new Scanner(System.in);
         // The default host.
         String host = "localhost";
@@ -131,8 +131,8 @@ public class MultiThreadChatClient implements Runnable {
         	while(true){
             System.out.println("...");
 	        	multicastData = new DatagramPacket(buffer, buffer.length);
-	            clientMultiSocket.receive(multicastData);
-	            responseLine = multicastData.getData().toString();
+            clientMultiSocket.receive(multicastData);
+            responseLine = new String(multicastData.getData());
 	            if (responseLine != null) {
 	                System.out.println(responseLine);
 	                if (responseLine.indexOf("*** Bye") != -1) {
@@ -150,6 +150,6 @@ public class MultiThreadChatClient implements Runnable {
     public static void send() {
     	String msg;
       msg = scan.nextLine();
-      os.println(msg.trim());
+      os.println(msg);
     }
 }
