@@ -80,6 +80,8 @@ class ClientThread extends Thread {
 
         buff = line.getBytes();
         if(buff.length > 4096){
+          System.out.println("Buffer: " + buff);
+          System.out.println("Length: " + buff.length);
           DatagramPacket packet = new DatagramPacket(Arrays.copyOfRange(buff, 0, 4095), 4096,
                                                      this.group, this.port);
           serverMultiSocket.send(packet);
