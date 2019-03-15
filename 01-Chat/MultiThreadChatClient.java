@@ -141,11 +141,12 @@ public class MultiThreadChatClient implements Runnable {
 	        	multicastData = new DatagramPacket(buffer, buffer.length);
             clientMultiSocket.receive(multicastData);
             firstIn = new String(multicastData.getData(), multicastData.getOffset(), multicastData.getLength());
+            System.out.println(firstIn);
             if(!firstIn.startsWith("***")){
               data = firstIn.split("<"); // Parei aqui > Separar as strings, [0] = quem enviou, [1] = conteudo
               boolean first = true;
               for(String result : data){
-                System.out.println("Split");
+                //System.out.println("Split");
                 if(first){
                   first = false;
                   fileName = result;
@@ -157,7 +158,7 @@ public class MultiThreadChatClient implements Runnable {
               responseLine = firstIn;
             }
             if (responseLine != "") {
-              System.out.println("...---...");
+              //System.out.println("...---...");
                 try{
                   if(fileName != null){
                     output = new BufferedWriter(new FileWriter(fileName+".client", true));

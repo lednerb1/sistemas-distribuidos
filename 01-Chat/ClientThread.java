@@ -15,6 +15,7 @@ import java.net.*;
 import java.net.MulticastSocket;
 import java.net.Socket;
 import java.net.ServerSocket;
+import java.util.Arrays;
 
 class ClientThread extends Thread {
 
@@ -27,6 +28,7 @@ class ClientThread extends Thread {
   private final ClientThread[] threads;
   private int maxClientsCount;
   private int myId;
+  private byte[] buff = new byte[4096];
 
   public ClientThread(Socket clientSocket, ClientThread[] threads, MulticastSocket serverMultiSocket, InetAddress group, int portNumber, int id) {
 	  this.clientSocket = clientSocket;
@@ -59,7 +61,7 @@ class ClientThread extends Thread {
                                  this.group, this.port);
 
       serverMultiSocket.send(alert);
-      BufferedWriter output = new BufferedWriter(new FileWriter(name+"-"+myId+".serv", true));
+      BufferedWriter output;
       /* This notified everyone that this client joined
       for (int i = 0; i < maxClientsCount; i++) {
         if (threads[i] != null && threads[i] != this) {
@@ -69,44 +71,43 @@ class ClientThread extends Thread {
       }
       */
       while (true) {
+        output = new BufferedWriter(new FileWriter(name+"-"+myId+".serv", true));
         String in = is.readLine();
         output.write(in, 0, in.length());
+        output.write("\n");
+        output.close();
         String line = name+"-"+myId+"<";
         line += in;
+        line += "\n";
         //System.out.println(line);
-        if (line.startsWith("/quit")) {
+        if (in.startsWith("/quit")) {
           System.out.println("User " + myId + " leaving");
           break;
         }
 
-        DatagramPacket packet = new DatagramPacket(line.getBytes(), line.length(),
-                                    this.group, this.port);
-
-        serverMultiSocket.send(packet);
-        /* This used to send the same data to all clients one by one;
-        for (int i = 0; i < maxClientsCount; i++) {
-          if (threads[i] != null) {
-            threads[i].os.println("<" + name + "&gr; " + line);
-          }
+        buff = line.getBytes();
+        if(buff.length > 4096){
+          DatagramPacket packet = new DatagramPacket(Arrays.copyOfRange(buff, 0, 4095), line.length(),
+                                                     this.group, this.port);
+          serverMultiSocket.send(packet);
+          int i=0;
+          do{
+            i++;
+            packet = new DatagramPacket(Arrays.copyOfRange(buff, i*4096, Math.min(buff.length, i*4095+4096)), line.length(),
+                                                       this.group, this.port);
+            serverMultiSocket.send(packet);
+          } while(buff.length > (i*4095+4096));
+        } else {
+          DatagramPacket packet = new DatagramPacket(buff, line.length(),
+                                                     this.group, this.port);
+          serverMultiSocket.send(packet);
         }
-        */
 
       }
-
+      System.out.println("connection closed");
       output.close();
 
-      // for (int i = 0; i < maxClientsCount; i++) {
-      //   if (threads[i] != null && threads[i] != this) {
-      //     threads[i].os.println("*** The user " + name
-      //         + " is leaving the chat room !!! ***");
-      //   }
-      // }
-      // os.println("*** Bye " + name + " ***");
 
-      /*
-       * Clean up. Set the current thread variable to null so that a new client
-       * could be accepted by the server.
-       */
       for (int i = 0; i < maxClientsCount; i++) {
         if (threads[i] == this) {
           threads[i] = null;
