@@ -29,6 +29,7 @@ class ClientThread extends Thread {
   private int maxClientsCount;
   private int myId;
   private byte[] buff = new byte[4096];
+  private int msgId = 0;
 
   public ClientThread(Socket clientSocket, ClientThread[] threads, MulticastSocket serverMultiSocket, InetAddress group, int portNumber, int id) {
 	  this.clientSocket = clientSocket;
@@ -53,6 +54,7 @@ class ClientThread extends Thread {
       os = new PrintStream(clientSocket.getOutputStream());
       os.println("Enter your name.");
       String name = is.readLine().trim();
+      os.println("Id,"+this.myId);
       os.println("Hello " + name
       + " to our chat room.\nTo leave enter /quit in a new line");
 
@@ -62,16 +64,17 @@ class ClientThread extends Thread {
 
       serverMultiSocket.send(alert);
       BufferedWriter output;
-      output = new BufferedWriter(new FileWriter(name+"-"+myId+".serv", true));
 
       while (true) {
+        output = new BufferedWriter(new FileWriter(name+"-"+msgId+".serv", true));
         String in = is.readLine();
         output.write(in, 0, in.length());
         output.write("\n");
         output.close();
-        String line = name+"-"+myId+"<";
+        String line = name+"-"+msgId+".client"+msgId+"<";
         line += in;
         line += "\n";
+        msgId++;
         //System.out.println(line);
         if (in.startsWith("/quit")) {
           System.out.println("User " + myId + " leaving");
@@ -88,8 +91,10 @@ class ClientThread extends Thread {
           int i=0;
           do{
             i++;
-            packet = new DatagramPacket(Arrays.copyOfRange(buff, i*4096, Math.min(buff.length, i*4095+4096)), Math.min(buff.length, i*4095+4096) - i*4096,
-                                                       this.group, this.port);
+            packet = new DatagramPacket(Arrays.copyOfRange(buff, i*4096,
+                                                           Math.min(buff.length, i*4095+4096)),
+                                                           Math.min(buff.length, i*4095+4096) - i*4096,
+                                                           this.group, this.port);
             serverMultiSocket.send(packet);
           } while(buff.length > (i*4095+4096));
         } else {
@@ -101,7 +106,6 @@ class ClientThread extends Thread {
       }
       System.out.println("connection closed");
       output.close();
-
 
       for (int i = 0; i < maxClientsCount; i++) {
         if (threads[i] == this) {
@@ -116,6 +120,11 @@ class ClientThread extends Thread {
       os.close();
       clientSocket.close();
     } catch (IOException e) {
+      for (int i = 0; i < maxClientsCount; i++) {
+        if (threads[i] == this) {
+          threads[i] = null;
+        }
+      }
     }
   }
 }

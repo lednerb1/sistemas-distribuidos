@@ -43,7 +43,7 @@ public class MultiThreadChatServer {
      */
     try {
   	  serverMultiSocket = new MulticastSocket(multicastPort);
-  	  address = InetAddress.getByName("224.0.2.10");
+  	  address = InetAddress.getByName("224.0.2.71");
   	  serverMultiSocket.joinGroup(address);
   	  serverSocket = new ServerSocket(portNumber);
     } catch (IOException e) {

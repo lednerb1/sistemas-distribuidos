@@ -35,10 +35,12 @@ public class MultiThreadChatClient implements Runnable {
         // The default port.
         int portNumber = 2222;
         int multicastPort = 19970;
+        int myId;
         scan = new Scanner(System.in);
         // The default host.
         String host = "localhost";
         name = null;
+
 
         if (args.length < 2) {
             System.out
@@ -57,7 +59,7 @@ public class MultiThreadChatClient implements Runnable {
             // System.out.println("")
             // Start listening on Multicast server. Probably need a new port.
             clientMultiSocket = new MulticastSocket(multicastPort);
-            InetAddress address = InetAddress.getByName("224.0.2.10");
+            InetAddress address = InetAddress.getByName("224.0.2.71");
             clientMultiSocket.joinGroup(address);
             // --
             inputLine = new BufferedReader(new InputStreamReader(System.in));
@@ -79,35 +81,42 @@ public class MultiThreadChatClient implements Runnable {
             try {
             	// Setup account using TCP Connection
             	try {
-
+                boolean toRead=true;
             		while(true){
                   String line;
             			line = is.readLine();
             			if(line != null){
+                    if(line.contains("Id")){
+                      myId = Integer.parseInt(line.split(",")[1]);
+                    }
             				if(line.contains("Hello")){
-                      //System.out.println("DEBUG: " + line);
                       break;
                     }
-            				System.out.println(line);
-            				// os.println(inputLine.readLine().trim());
-                    name = scan.nextLine();
-                    os.println(name.trim());
+                    if(toRead){
+              				System.out.println(line);
+                      name = scan.nextLine();
+                      os.println(name.trim());
+                      toRead = false;
+                    }
             			}
             		}
             	} catch (IOException e){
             		System.err.println(e);
             	}
-              inputLine = new BufferedReader(new FileReader("chat"+name+".chat"));
             	// Once the server says Hello we're good to stop listening on the
               // TCP socket and start listening on Multicast UDP socket
               System.out.println("!!! Now listening on Multicast channel");
                 /* Create a thread to read from the Multicast channel. */
                 new Thread(new MultiThreadChatClient()).start();
-
+                int msgId = 1;
                 while (!closed) {
+                  String inputFile =  "" + name + "-" + msgId + ".chat";
+                  System.out.println("Waiting for file:" + inputFile);
                   System.out.println("Press ENTER to send");
                   scan.nextLine();
-                	send();
+                	if(send(inputFile)){
+                    msgId++;
+                  }
                 }
                 /*
                  * Close the output stream, close the input stream, close the socket.
@@ -142,7 +151,7 @@ public class MultiThreadChatClient implements Runnable {
             firstIn = new String(multicastData.getData(), multicastData.getOffset(), multicastData.getLength());
             System.out.println(firstIn);
             if(!firstIn.startsWith("***")){
-              data = firstIn.split("<"); // Parei aqui > Separar as strings, [0] = quem enviou, [1] = conteudo
+              data = firstIn.split("<");
               boolean first = true;
               for(String result : data){
                 //System.out.println("Split");
@@ -160,7 +169,7 @@ public class MultiThreadChatClient implements Runnable {
               //System.out.println("...---...");
                 try{
                   if(fileName != null){
-                    output = new BufferedWriter(new FileWriter(name+"-"+fileName+".client", true));
+                    output = new BufferedWriter(new FileWriter(fileName, true));
                     output.write(responseLine, 0, responseLine.length());
                     output.close();
                     output = null;
@@ -183,13 +192,17 @@ public class MultiThreadChatClient implements Runnable {
         }
     }
 
-    public static void send() {
+    public static boolean send(String inputFile) throws IOException {
     	String msg;
       try{
+        inputLine = new BufferedReader(new FileReader(inputFile));
         while((msg = inputLine.readLine()) != null)
           os.println(msg);
       } catch (IOException e){
         System.err.println(e);
+        return false;
       }
+
+      return true;
     }
 }
