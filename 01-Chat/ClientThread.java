@@ -106,13 +106,6 @@ class ClientThread extends Thread {
       }
       System.out.println("connection closed");
       output.close();
-
-      for (int i = 0; i < maxClientsCount; i++) {
-        if (threads[i] == this) {
-          threads[i] = null;
-        }
-      }
-
       /*
        * Close the output stream, close the input stream, close the socket.
        */
@@ -120,11 +113,7 @@ class ClientThread extends Thread {
       os.close();
       clientSocket.close();
     } catch (IOException e) {
-      for (int i = 0; i < maxClientsCount; i++) {
-        if (threads[i] == this) {
-          threads[i] = null;
-        }
-      }
+
     }
   }
 }
