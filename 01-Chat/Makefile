@@ -2,7 +2,7 @@
 
 JC = javac
 JFLAGS = #-Xlint
-TARGET = MultiThreadChatServer.class MultiThreadChatClient.class ClientThread.class
+TARGET = MultiThreadChatServer.class MultiThreadChatClient.class ClientThread.class 
 
 all: $(TARGET)
 
@@ -17,3 +17,7 @@ MultiThreadChatClient.class: MultiThreadChatClient.java
 
 clean:
 	rm -f *~ $(TARGET)
+	rm -f *.client
+	rm -f *.serv
+	rm -f *.chat
+
