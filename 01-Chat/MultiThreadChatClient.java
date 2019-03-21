@@ -192,17 +192,17 @@ public class MultiThreadChatClient implements Runnable {
         }
     }
 
-    public static boolean send(String inputFile) throws IOException {
+    public static boolean send(String inputFile) {
     	String msg;
       try{
         inputLine = new BufferedReader(new FileReader(inputFile));
         while((msg = inputLine.readLine()) != null)
           os.println(msg);
       } catch (IOException e){
+        System.err.println("Error Reading File");
         System.err.println(e);
         return false;
       }
-
       return true;
     }
 }
