@@ -119,6 +119,7 @@ class ClientThread extends Thread {
     }
 
     public boolean isConnected(){
-        return this.clientSocket.isConnected();
+        os.writeLine("ping");
+        return is.readLine().equals("pong");
     }
 }
