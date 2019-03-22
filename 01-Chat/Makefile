@@ -2,7 +2,7 @@
 
 JC = javac
 JFLAGS = #-Xlint
-TARGET = MultiThreadChatServer.class MultiThreadChatClient.class ClientThread.class  HeartBeat.class
+TARGET = MultiThreadChatServer.class MultiThreadChatClient.class ClientThread.class
 
 all: $(TARGET)
 
@@ -15,12 +15,11 @@ MultiThreadChatServer.class: MultiThreadChatServer.java
 MultiThreadChatClient.class: MultiThreadChatClient.java
 	$(JC) $(JFLAGS) MultiThreadChatClient.java
 
-HeartBeat.class: HeartBeat.java
-	$(JC) $(JFLAGS) HeartBeat.java
+#HeartBeat.class: HeartBeat.java
+#	$(JC) $(JFLAGS) HeartBeat.java
 
 clean:
 	rm -f *~ $(TARGET)
 	rm -f *.client*
 	rm -f *.serv*
 	rm -f *.chat*
-

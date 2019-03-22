@@ -40,8 +40,8 @@ public class MultiThreadChatClient implements Runnable {
 
         if (args.length < 2) {
             System.out
-                    .println("Usage: java MultiThreadChatClient <host> <portNumber>\n"
-                            + "Now using host=" + host + ", portNumber=" + portNumber);
+            .println("Usage: java MultiThreadChatClient <host> <portNumber>\n"
+            + "Now using host=" + host + ", portNumber=" + portNumber);
         } else {
             host = args[0];
             portNumber = Integer.valueOf(args[1]).intValue();
@@ -62,13 +62,13 @@ public class MultiThreadChatClient implements Runnable {
             System.err.println("Don't know about host " + host);
         } catch (IOException e) {
             System.err.println("Couldn't get I/O for the connection to the host "
-                    + host);
+            + host);
             System.err.println(e);
         }
         /*
-         * If everything has been initialized then we want to write some data to the
-         * socket we have opened a connection to on the port portNumber.
-         */
+        * If everything has been initialized then we want to write some data to the
+        * socket we have opened a connection to on the port portNumber.
+        */
         if (clientSocket != null && os != null && is != null && clientMultiSocket != null) {
             try {
                 // Setup account using TCP Connection
@@ -79,7 +79,7 @@ public class MultiThreadChatClient implements Runnable {
                         line = is.readLine();
                         if(line != null){
                             if(line.contains("Id")){
-                              myId = Integer.parseInt(line.split(",")[1]);
+                                myId = Integer.parseInt(line.split(",")[1]);
                             }
                             if(line.contains("Hello")){
                                 break;
@@ -100,21 +100,21 @@ public class MultiThreadChatClient implements Runnable {
                 System.out.println("!!! Now listening on Multicast channel");
                 /* Create a thread to read from the Multicast channel. */
                 new Thread(new MultiThreadChatClient()).start();
-                new Thread(new HeartBeat(clientSocket)).start();
-                
+                //new Thread(new HeartBeat(clientSocket)).start();
+
                 int msgId = 1;
                 while (!closed) {
                     String inputFile =  "" + name + "-" + msgId + ".chat";
                     System.out.println("Waiting for file:" + inputFile);
                     System.out.println("Press ENTER to send");
                     scan.nextLine();
-                	if(send(inputFile)){
+                    if(send(inputFile)){
                         msgId++;
                     }
                 }
                 /*
-                 * Close the output stream, close the input stream, close the socket.
-                 */
+                * Close the output stream, close the input stream, close the socket.
+                */
                 os.close();
                 is.close();
                 clientSocket.close();
@@ -125,15 +125,15 @@ public class MultiThreadChatClient implements Runnable {
     }
 
     /*
-     * Create a thread to read from the server. (non-Javadoc)
-     *
-     * @see java.lang.Runnable#run()
-     */
+    * Create a thread to read from the server. (non-Javadoc)
+    *
+    * @see java.lang.Runnable#run()
+    */
     public void run() {
         /*
-         * Keep on reading from the socket till we receive "Bye" from the
-         * server. Once we received that then we want to break.
-         */
+        * Keep on reading from the socket till we receive "Bye" from the
+        * server. Once we received that then we want to break.
+        */
 
         try {
             while(true){
@@ -180,26 +180,28 @@ public class MultiThreadChatClient implements Runnable {
                         break;
                     }
                     if(output != null)
-                        output.close();
+                    output.close();
                 }
 
-        	}
+            }
         } catch (IOException e) {
             System.err.println("IOException:  " + e);
         }
     }
 
     public static boolean send(String inputFile) {
-    	String msg;
-      try{
-        inputLine = new BufferedReader(new FileReader(inputFile));
-        while((msg = inputLine.readLine()) != null)
-          os.println(msg);
-      } catch (IOException e){
-        System.err.println("Error Reading File");
-        System.err.println(e);
-        return false;
-      }
-      return true;
+        String msg;
+        try{
+            inputLine = new BufferedReader(new FileReader(inputFile));
+            while((msg = inputLine.readLine()) != null){
+                os.println(msg);
+            }
+            os.println("\n-1EOF");
+        } catch (IOException e){
+            System.err.println("Error Reading File");
+            System.err.println(e);
+            return false;
+        }
+        return true;
     }
 }

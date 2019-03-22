@@ -1,11 +1,11 @@
 /*
- * The chat client thread. This client thread opens the input and the output
- * streams for a particular client, ask the client's name, informs all the
- * clients connected to the server about the fact that a new client has joined
- * the chat room, and as long as it receive data, echos that data back to all
- * other clients. When a client leaves the chat room this thread informs also
- * all the clients about that and terminates.
- */
+* The chat client thread. This client thread opens the input and the output
+* streams for a particular client, ask the client's name, informs all the
+* clients connected to the server about the fact that a new client has joined
+* the chat room, and as long as it receive data, echos that data back to all
+* other clients. When a client leaves the chat room this thread informs also
+* all the clients about that and terminates.
+*/
 import java.io.DataInputStream;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -30,6 +30,7 @@ class ClientThread extends Thread {
     private int myId;
     private byte[] buff = new byte[4096];
     private int msgId = 0;
+    private String eof = "";
 
     public ClientThread(Socket clientSocket, ClientThread[] threads, MulticastSocket serverMultiSocket, InetAddress group, int portNumber, int id) {
         this.clientSocket = clientSocket;
@@ -65,6 +66,9 @@ class ClientThread extends Thread {
             while (clientSocket.isConnected()) {
                 output = new BufferedWriter(new FileWriter(name+"-"+msgId+".serv", true));
                 String in = is.readLine();
+                if(in.equals("\n-1EOF")){
+                    msgId++;
+                }
                 if(in == null){
                     System.out.println("User " + myId + " leaving");
                     break;
@@ -75,7 +79,6 @@ class ClientThread extends Thread {
                 String line = name+"-"+msgId+".client"+myId+"<";
                 line += in;
                 line += "\n";
-                msgId++;
                 //System.out.println(line);
                 if (in.startsWith("/quit")) {
                     System.out.println("User " + myId + " leaving");
@@ -87,20 +90,20 @@ class ClientThread extends Thread {
                     System.out.println("Buffer: " + buff);
                     System.out.println("Length: " + buff.length);
                     DatagramPacket packet = new DatagramPacket(Arrays.copyOfRange(buff, 0, 4095), 4096,
-                                                               this.group, this.port);
+                    this.group, this.port);
                     serverMultiSocket.send(packet);
                     int i=0;
                     do{
                         i++;
                         packet = new DatagramPacket(Arrays.copyOfRange(buff, i*4096,
-                                               Math.min(buff.length, i*4095+4096)),
-                                               Math.min(buff.length, i*4095+4096) - i*4096,
-                                               this.group, this.port);
+                        Math.min(buff.length, i*4095+4096)),
+                        Math.min(buff.length, i*4095+4096) - i*4096,
+                        this.group, this.port);
                         serverMultiSocket.send(packet);
                     } while(buff.length > (i*4095+4096));
                 } else {
                     DatagramPacket packet = new DatagramPacket(buff, line.length(),
-                                     this.group, this.port);
+                    this.group, this.port);
                     serverMultiSocket.send(packet);
                 }
 
@@ -119,11 +122,16 @@ class ClientThread extends Thread {
     }
 
     public boolean isConnected(){
-        os.println("ping");
-	try{
-	        return is.readLine().equals("pong");
-	} catch(IOException e){
-		return false;
-	}
+        try{
+            os.println("ping");
+            System.out.println("pinging");
+            if(os.checkError()){
+                System.out.println("Oops");
+                return false;
+            }
+        } catch(Exception e){
+            return false;
+        }
+        return true;
     }
 }
