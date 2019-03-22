@@ -68,6 +68,7 @@ class ClientThread extends Thread {
                 String in = is.readLine();
                 if(in.equals("\n-1EOF")){
                     msgId++;
+                    continue;
                 }
                 if(in == null){
                     System.out.println("User " + myId + " leaving");
@@ -87,20 +88,21 @@ class ClientThread extends Thread {
 
                 buff = line.getBytes();
                 if(buff.length > 4096){
-                    System.out.println("Buffer: " + buff);
-                    System.out.println("Length: " + buff.length);
+                    // System.out.println("Buffer: " + buff);
+                    // System.out.println("Length: " + buff.length);
                     DatagramPacket packet = new DatagramPacket(Arrays.copyOfRange(buff, 0, 4095), 4096,
-                    this.group, this.port);
+                                                               this.group, this.port);
                     serverMultiSocket.send(packet);
                     int i=0;
                     do{
                         i++;
-                        packet = new DatagramPacket(Arrays.copyOfRange(buff, i*4096,
-                        Math.min(buff.length, i*4095+4096)),
-                        Math.min(buff.length, i*4095+4096) - i*4096,
-                        this.group, this.port);
+                        byte[] subBuff = Arrays.copyOfRange(buff, i*4096,
+                                                    Math.min(buff.length, i*4096+4095));
+                        packet = new DatagramPacket(subBuff,
+                                                    subBuff.length,
+                                                    this.group, this.port);
                         serverMultiSocket.send(packet);
-                    } while(buff.length > (i*4095+4096));
+                    } while(buff.length > (i*4096+4095));
                 } else {
                     DatagramPacket packet = new DatagramPacket(buff, line.length(),
                     this.group, this.port);

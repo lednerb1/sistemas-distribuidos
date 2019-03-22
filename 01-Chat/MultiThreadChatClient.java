@@ -164,7 +164,7 @@ public class MultiThreadChatClient implements Runnable {
                 } else {
                     responseLine = firstIn;
                 }
-                if (responseLine != "") {
+                if (!responseLine.equals("")) {
                     try{
                         if(fileName != null){
                             output = new BufferedWriter(new FileWriter(fileName, true));
