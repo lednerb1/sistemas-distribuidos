@@ -77,7 +77,7 @@ class ClientThread extends Thread {
                 output.write(in, 0, in.length());
                 output.write("\n");
                 output.close();
-                String line = name+"-"+msgId+".client"+myId+"<";
+                String line = name+"-"+msgId+"<";
                 line += in;
                 line += "\n";
                 //System.out.println(line);
