@@ -2,6 +2,7 @@ $ make clean & make
 
 Pode ocorrer de mais algum trabalho estar usando a porta 2222
 Neste caso voce pode definir a porta que deseja conectar como arg1 do servidor
+No cliente voce pode definir a porta como arg2
 
 Primeiro, lance o servidor:
 Terminal 1:
@@ -14,4 +15,14 @@ Termina 2-n:
 Caso o terminal do cliente esteja conectado em sdi-2 lance o cliente:
 Terminal 2-n (sdi-2):
    $ java MultiThreadChatClient sdi-1 2222
+
+
+No cliente crie o arquivo de leitura 'nome-x.chat', onde nome eh o nome
+solicitado pelo programa e o numero e x eh o numero da mensagem, como exemplo:
+Imagine que o cliente peter entrou no servidor:
+	1 - o cliente criou o arquivo peter-1.chat e alimentou com texto
+	2 - No terminal do cliente pressiona ENTER para enviar o arquivo
+	3 - O cliente deseja enviar um novo arquivo
+	4 - Cria um novo arquivo: peter-2.chat e alimenta com texto
+	5 - Passo 2.
 
