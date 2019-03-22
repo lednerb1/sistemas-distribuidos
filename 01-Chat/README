@@ -1,4 +1,7 @@
-javac *.java
+$ make clean & make
+
+Pode ocorrer de mais algum trabalho estar usando a porta 2222
+Neste caso voce pode definir a porta que deseja conectar como arg1 do servidor
 
 Primeiro, lance o servidor:
 Terminal 1:
@@ -6,4 +9,9 @@ Terminal 1:
 
 Em outros terminais, lance os clientes:
 Termina 2-n:
-   $ java MultiThreadChatClient
+   $ java MultiThreadChatClient localhost 2222
+
+Caso o terminal do cliente esteja conectado em sdi-2 lance o cliente:
+Terminal 2-n (sdi-2):
+   $ java MultiThreadChatClient sdi-1 2222
+
