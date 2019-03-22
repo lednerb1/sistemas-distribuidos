@@ -57,9 +57,11 @@ public class MultiThreadChatServer {
     while (true) {
       try {
         clientSocket = serverSocket.accept();
+        System.out.println("New Connection");
         int i = 0;
         for (i = 0; i < maxClientsCount; i++) {
           if (threads[i] == null) {
+              System.out.println("New connection got id " + i);
             (threads[i] = new ClientThread(clientSocket, threads, serverMultiSocket, address, multicastPort, i)).start();
             break;
           }
@@ -75,4 +77,5 @@ public class MultiThreadChatServer {
       }
     }
   }
+
 }

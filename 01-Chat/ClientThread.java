@@ -19,101 +19,102 @@ import java.util.Arrays;
 
 class ClientThread extends Thread {
 
-  private DataInputStream is = null;
-  private PrintStream os = null;
-  private Socket clientSocket = null;
-  private MulticastSocket serverMultiSocket = null;
-  private InetAddress group = null;
-  private int port = 0;
-  private final ClientThread[] threads;
-  private int maxClientsCount;
-  private int myId;
-  private byte[] buff = new byte[4096];
-  private int msgId = 0;
+    private DataInputStream is = null;
+    private PrintStream os = null;
+    private Socket clientSocket = null;
+    private MulticastSocket serverMultiSocket = null;
+    private InetAddress group = null;
+    private int port = 0;
+    private final ClientThread[] threads;
+    private int maxClientsCount;
+    private int myId;
+    private byte[] buff = new byte[4096];
+    private int msgId = 0;
 
-  public ClientThread(Socket clientSocket, ClientThread[] threads, MulticastSocket serverMultiSocket, InetAddress group, int portNumber, int id) {
-	  this.clientSocket = clientSocket;
-	  this.threads = threads;
-	  this.maxClientsCount = threads.length;
-    this.serverMultiSocket = serverMultiSocket;
-    this.group = group;
-    this.port = portNumber;
-    this.myId = id+1;
-  }
-
-  public void run() {
-    int maxClientsCount = this.maxClientsCount;
-    ClientThread[] threads = this.threads;
-    MulticastSocket serverMultiSocket = this.serverMultiSocket;
-
-    try {
-      /*
-       * Create input and output streams for this client.
-       */
-      is = new DataInputStream(clientSocket.getInputStream());
-      os = new PrintStream(clientSocket.getOutputStream());
-      os.println("Enter your name.");
-      String name = is.readLine().trim();
-      os.println("Id,"+this.myId);
-      os.println("Hello " + name
-      + " to our chat room.\nTo leave enter /quit in a new line");
-
-      String msg = "*** A new user " + name + " entered the chat room !!! ***\n";
-      DatagramPacket alert = new DatagramPacket(msg.getBytes(), msg.length(),
-                                 this.group, this.port);
-
-      serverMultiSocket.send(alert);
-      BufferedWriter output;
-
-      while (true) {
-        output = new BufferedWriter(new FileWriter(name+"-"+msgId+".serv", true));
-        String in = is.readLine();
-        output.write(in, 0, in.length());
-        output.write("\n");
-        output.close();
-        String line = name+"-"+msgId+".client"+msgId+"<";
-        line += in;
-        line += "\n";
-        msgId++;
-        //System.out.println(line);
-        if (in.startsWith("/quit")) {
-          System.out.println("User " + myId + " leaving");
-          break;
-        }
-
-        buff = line.getBytes();
-        if(buff.length > 4096){
-          System.out.println("Buffer: " + buff);
-          System.out.println("Length: " + buff.length);
-          DatagramPacket packet = new DatagramPacket(Arrays.copyOfRange(buff, 0, 4095), 4096,
-                                                     this.group, this.port);
-          serverMultiSocket.send(packet);
-          int i=0;
-          do{
-            i++;
-            packet = new DatagramPacket(Arrays.copyOfRange(buff, i*4096,
-                                                           Math.min(buff.length, i*4095+4096)),
-                                                           Math.min(buff.length, i*4095+4096) - i*4096,
-                                                           this.group, this.port);
-            serverMultiSocket.send(packet);
-          } while(buff.length > (i*4095+4096));
-        } else {
-          DatagramPacket packet = new DatagramPacket(buff, line.length(),
-                                                     this.group, this.port);
-          serverMultiSocket.send(packet);
-        }
-
-      }
-      System.out.println("connection closed");
-      output.close();
-      /*
-       * Close the output stream, close the input stream, close the socket.
-       */
-      is.close();
-      os.close();
-      clientSocket.close();
-    } catch (IOException e) {
-
+    public ClientThread(Socket clientSocket, ClientThread[] threads, MulticastSocket serverMultiSocket, InetAddress group, int portNumber, int id) {
+        this.clientSocket = clientSocket;
+        this.threads = threads;
+        this.maxClientsCount = threads.length;
+        this.serverMultiSocket = serverMultiSocket;
+        this.group = group;
+        this.port = portNumber;
+        this.myId = id+1;
     }
-  }
+
+    public void run() {
+        int maxClientsCount = this.maxClientsCount;
+        ClientThread[] threads = this.threads;
+        MulticastSocket serverMultiSocket = this.serverMultiSocket;
+
+        try {
+            is = new DataInputStream(clientSocket.getInputStream());
+            os = new PrintStream(clientSocket.getOutputStream());
+            os.println("Enter your name.");
+            String name = is.readLine().trim();
+            os.println("Id,"+this.myId);
+            os.println("Hello " + name
+            + " to our chat room.\nTo leave enter /quit in a new line");
+
+            String msg = "*** A new user " + name + " entered the chat room !!! ***\n";
+            DatagramPacket alert = new DatagramPacket(msg.getBytes(), msg.length(),
+            this.group, this.port);
+
+            serverMultiSocket.send(alert);
+            BufferedWriter output;
+
+            while (clientSocket.isConnected()) {
+                output = new BufferedWriter(new FileWriter(name+"-"+msgId+".serv", true));
+                String in = is.readLine();
+                if(in == null){
+                    System.out.println("User " + myId + " leaving");
+                    break;
+                }
+                output.write(in, 0, in.length());
+                output.write("\n");
+                output.close();
+                String line = name+"-"+msgId+".client"+msgId+"<";
+                line += in;
+                line += "\n";
+                msgId++;
+                //System.out.println(line);
+                if (in.startsWith("/quit")) {
+                    System.out.println("User " + myId + " leaving");
+                    break;
+                }
+
+                buff = line.getBytes();
+                if(buff.length > 4096){
+                    System.out.println("Buffer: " + buff);
+                    System.out.println("Length: " + buff.length);
+                    DatagramPacket packet = new DatagramPacket(Arrays.copyOfRange(buff, 0, 4095), 4096,
+                                                               this.group, this.port);
+                    serverMultiSocket.send(packet);
+                    int i=0;
+                    do{
+                        i++;
+                        packet = new DatagramPacket(Arrays.copyOfRange(buff, i*4096,
+                                               Math.min(buff.length, i*4095+4096)),
+                                               Math.min(buff.length, i*4095+4096) - i*4096,
+                                               this.group, this.port);
+                        serverMultiSocket.send(packet);
+                    } while(buff.length > (i*4095+4096));
+                } else {
+                    DatagramPacket packet = new DatagramPacket(buff, line.length(),
+                                     this.group, this.port);
+                    serverMultiSocket.send(packet);
+                }
+
+            }
+            System.out.println("connection closed");
+            output.close();
+            /*
+            * Close the output stream, close the input stream, close the socket.
+            */
+            is.close();
+            os.close();
+            clientSocket.close();
+        } catch (IOException e) {
+
+        }
+    }
 }

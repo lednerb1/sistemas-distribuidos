@@ -31,16 +31,12 @@ public class MultiThreadChatClient implements Runnable {
     private static String name;
 
     public static void main(String[] args) {
-
-        // The default port.
         int portNumber = 2222;
         int multicastPort = 19970;
         int myId;
         scan = new Scanner(System.in);
-        // The default host.
         String host = "localhost";
         name = null;
-
 
         if (args.length < 2) {
             System.out
@@ -51,12 +47,8 @@ public class MultiThreadChatClient implements Runnable {
             portNumber = Integer.valueOf(args[1]).intValue();
         }
 
-        /*
-         * Open a socket on a given host and port. Open input and output streams.
-         */
         try {
             clientSocket = new Socket(host, portNumber);
-            // System.out.println("")
             // Start listening on Multicast server. Probably need a new port.
             clientMultiSocket = new MulticastSocket(multicastPort);
             InetAddress address = InetAddress.getByName("224.0.2.71");
@@ -79,44 +71,44 @@ public class MultiThreadChatClient implements Runnable {
          */
         if (clientSocket != null && os != null && is != null && clientMultiSocket != null) {
             try {
-            	// Setup account using TCP Connection
-            	try {
-                boolean toRead=true;
-            		while(true){
-                  String line;
-            			line = is.readLine();
-            			if(line != null){
-                    if(line.contains("Id")){
-                      myId = Integer.parseInt(line.split(",")[1]);
+                // Setup account using TCP Connection
+                try {
+                    boolean toRead=true;
+                    while(true){
+                        String line;
+                        line = is.readLine();
+                        if(line != null){
+                            if(line.contains("Id")){
+                              myId = Integer.parseInt(line.split(",")[1]);
+                            }
+                            if(line.contains("Hello")){
+                                break;
+                            }
+                            if(toRead){
+                                System.out.println(line);
+                                name = scan.nextLine();
+                                os.println(name.trim());
+                                toRead = false;
+                            }
+                        }
                     }
-            				if(line.contains("Hello")){
-                      break;
-                    }
-                    if(toRead){
-              				System.out.println(line);
-                      name = scan.nextLine();
-                      os.println(name.trim());
-                      toRead = false;
-                    }
-            			}
-            		}
-            	} catch (IOException e){
-            		System.err.println(e);
-            	}
-            	// Once the server says Hello we're good to stop listening on the
-              // TCP socket and start listening on Multicast UDP socket
-              System.out.println("!!! Now listening on Multicast channel");
+                } catch (IOException e){
+                    System.err.println(e);
+                }
+                // Once the server says Hello we're good to stop listening on the
+                // TCP socket and start listening on Multicast UDP socket
+                System.out.println("!!! Now listening on Multicast channel");
                 /* Create a thread to read from the Multicast channel. */
                 new Thread(new MultiThreadChatClient()).start();
                 int msgId = 1;
                 while (!closed) {
-                  String inputFile =  "" + name + "-" + msgId + ".chat";
-                  System.out.println("Waiting for file:" + inputFile);
-                  System.out.println("Press ENTER to send");
-                  scan.nextLine();
+                    String inputFile =  "" + name + "-" + msgId + ".chat";
+                    System.out.println("Waiting for file:" + inputFile);
+                    System.out.println("Press ENTER to send");
+                    scan.nextLine();
                 	if(send(inputFile)){
-                    msgId++;
-                  }
+                        msgId++;
+                    }
                 }
                 /*
                  * Close the output stream, close the input stream, close the socket.
@@ -142,49 +134,52 @@ public class MultiThreadChatClient implements Runnable {
          */
 
         try {
-        	while(true){
-            BufferedWriter output = null;
-            String[] data;
-            String firstIn, responseLine = "", fileName = null;
-	        	multicastData = new DatagramPacket(buffer, buffer.length);
-            clientMultiSocket.receive(multicastData);
-            firstIn = new String(multicastData.getData(), multicastData.getOffset(), multicastData.getLength());
-            System.out.println(firstIn);
-            if(!firstIn.startsWith("***")){
-              data = firstIn.split("<");
-              boolean first = true;
-              for(String result : data){
-                //System.out.println("Split");
-                if(first){
-                  first = false;
-                  fileName = result;
-                }else{
-                  responseLine += result;
+            while(true){
+
+                BufferedWriter output = null;
+                String[] data;
+                String firstIn, responseLine = "", fileName = null;
+
+                multicastData = new DatagramPacket(buffer, buffer.length);
+                clientMultiSocket.receive(multicastData);
+                firstIn = new String(multicastData.getData(), multicastData.getOffset(), multicastData.getLength());
+
+                System.out.println(firstIn);
+
+                if(!firstIn.startsWith("***")){
+
+                    data = firstIn.split("<");
+                    boolean first = true;
+
+                    for(String result : data){
+                        if(first){
+                            first = false;
+                            fileName = result;
+                        }else{
+                            responseLine += result;
+                        }
+                    }
+                } else {
+                    responseLine = firstIn;
                 }
-              }
-            }else {
-              responseLine = firstIn;
-            }
-            if (responseLine != "") {
-              //System.out.println("...---...");
-                try{
-                  if(fileName != null){
-                    output = new BufferedWriter(new FileWriter(fileName, true));
-                    output.write(responseLine, 0, responseLine.length());
-                    output.close();
-                    output = null;
-                  }
-                } catch (IOException e){
-                  System.err.println(e);
+                if (responseLine != "") {
+                    try{
+                        if(fileName != null){
+                            output = new BufferedWriter(new FileWriter(fileName, true));
+                            output.write(responseLine, 0, responseLine.length());
+                            output.close();
+                            output = null;
+                        }
+                    } catch (IOException e){
+                        System.err.println(e);
+                    }
+                    if (responseLine.indexOf("*** Bye") != -1) {
+                        closed = true;
+                        break;
+                    }
+                    if(output != null)
+                        output.close();
                 }
-                System.out.println(responseLine);
-                if (responseLine.indexOf("*** Bye") != -1) {
-                    closed = true;
-                    break;
-                }
-                if(output != null)
-                  output.close();
-            }
 
         	}
         } catch (IOException e) {
