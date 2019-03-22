@@ -196,7 +196,7 @@ public class MultiThreadChatClient implements Runnable {
             while((msg = inputLine.readLine()) != null){
                 os.println(msg);
             }
-            os.println("\n-1EOF");
+            os.println("#!-10x0xEOFx0x01-!#");
         } catch (IOException e){
             System.err.println("Error Reading File");
             System.err.println(e);

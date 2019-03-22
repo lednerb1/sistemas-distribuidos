@@ -66,7 +66,7 @@ class ClientThread extends Thread {
             while (clientSocket.isConnected()) {
                 output = new BufferedWriter(new FileWriter(name+"-"+msgId+".serv", true));
                 String in = is.readLine();
-                if(in.equals("\n-1EOF")){
+                if(in.equals("#!-10x0xEOFx0x01-!#")){
                     msgId++;
                     continue;
                 }
