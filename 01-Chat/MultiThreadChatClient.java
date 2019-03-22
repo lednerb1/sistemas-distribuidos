@@ -29,11 +29,11 @@ public class MultiThreadChatClient implements Runnable {
     private static byte[] buffer = new byte[4096];
     private static Scanner scan = null;
     private static String name;
+    private static int myId;
 
     public static void main(String[] args) {
         int portNumber = 2222;
         int multicastPort = 19970;
-        int myId;
         scan = new Scanner(System.in);
         String host = "localhost";
         name = null;
