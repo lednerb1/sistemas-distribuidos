@@ -19,16 +19,24 @@ public class HeartBeat implements Runnable {
     private PrintStream os = null;
 
     public HeartBeat(Socket clientSocket) {
-        this.clientSocket = clientSocket;
-        this.is = new DataInputStream(this.clientSocket.getInputStream());
-        this.os = new PrintStream(this.clientSocket.getOutputStream());
+	try{
+       		this.clientSocket = clientSocket;
+        	this.is = new DataInputStream(this.clientSocket.getInputStream());
+        	this.os = new PrintStream(this.clientSocket.getOutputStream());
+	} catch (Exception e){
+		
+	}
     }
 
     public void run() {
-        while(true){
-            String beat = is.readLine();
-            if(beat.equals("ping"))
-                os.writeLine("pong");
-        }
+	try{
+        	while(true){
+            		String beat = is.readLine();
+            		if(beat.equals("ping"))
+               			os.println("pong");
+       		 }
+	} catch(IOException e){
+	
+	}    
     }
 }

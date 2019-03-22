@@ -60,7 +60,20 @@ public class MultiThreadChatServer {
         System.out.println("New Connection");
         int i = 0;
         for (i = 0; i < maxClientsCount; i++) {
-          if (threads[i] == null || !threads[i].isConnected()) {
+	 if(threads[i] != null){
+	   try{
+	    	if(!threads[i].isConnected()){
+	 		System.out.println("New connection replacing id " + i);
+			(threads[i] = new ClientThread(clientSocket, threads, serverMultiSocket, address, multicastPort, i)).start();
+			break;
+	    	}
+	   } catch(NullPointerException e){
+		System.out.println("Client returned NullException, replacing id " + i);
+		(threads[i] = new ClientThread(clientSocket, threads, serverMultiSocket, address, multicastPort, i)).start();
+		break;
+	   }
+	 }
+          else if (threads[i] == null) {
               System.out.println("New connection got id " + i);
             (threads[i] = new ClientThread(clientSocket, threads, serverMultiSocket, address, multicastPort, i)).start();
             break;

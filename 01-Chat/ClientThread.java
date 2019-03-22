@@ -119,7 +119,11 @@ class ClientThread extends Thread {
     }
 
     public boolean isConnected(){
-        os.writeLine("ping");
-        return is.readLine().equals("pong");
+        os.println("ping");
+	try{
+	        return is.readLine().equals("pong");
+	} catch(IOException e){
+		return false;
+	}
     }
 }

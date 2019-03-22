@@ -100,7 +100,7 @@ public class MultiThreadChatClient implements Runnable {
                 System.out.println("!!! Now listening on Multicast channel");
                 /* Create a thread to read from the Multicast channel. */
                 new Thread(new MultiThreadChatClient()).start();
-                new Thread(new HeartBeat()).start();
+                new Thread(new HeartBeat(clientSocket)).start();
                 
                 int msgId = 1;
                 while (!closed) {
