@@ -60,7 +60,7 @@ public class MultiThreadChatServer {
         System.out.println("New Connection");
         int i = 0;
         for (i = 0; i < maxClientsCount; i++) {
-          if (threads[i] == null) {
+          if (threads[i] == null || !threads[i].isConnected()) {
               System.out.println("New connection got id " + i);
             (threads[i] = new ClientThread(clientSocket, threads, serverMultiSocket, address, multicastPort, i)).start();
             break;

@@ -64,9 +64,7 @@ class ClientThread extends Thread {
 
             while (clientSocket.isConnected()) {
                 output = new BufferedWriter(new FileWriter(name+"-"+msgId+".serv", true));
-                System.out.println("waiting for message");
                 String in = is.readLine();
-                System.out.println(in);
                 if(in == null){
                     System.out.println("User " + myId + " leaving");
                     break;
@@ -118,5 +116,9 @@ class ClientThread extends Thread {
         } catch (IOException e) {
 
         }
+    }
+
+    public boolean isConnected(){
+        return this.clientSocket.isConnected();
     }
 }
