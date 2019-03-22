@@ -65,6 +65,7 @@ class ClientThread extends Thread {
             while (clientSocket.isConnected()) {
                 output = new BufferedWriter(new FileWriter(name+"-"+msgId+".serv", true));
                 String in = is.readLine();
+                System.out.println(in);
                 if(in == null){
                     System.out.println("User " + myId + " leaving");
                     break;
@@ -72,7 +73,7 @@ class ClientThread extends Thread {
                 output.write(in, 0, in.length());
                 output.write("\n");
                 output.close();
-                String line = name+"-"+msgId+".client"+msgId+"<";
+                String line = name+"-"+msgId+".client"+myId+"<";
                 line += in;
                 line += "\n";
                 msgId++;
@@ -106,7 +107,7 @@ class ClientThread extends Thread {
 
             }
             System.out.println("connection closed");
-            output.close();
+            //output.close();
             /*
             * Close the output stream, close the input stream, close the socket.
             */
