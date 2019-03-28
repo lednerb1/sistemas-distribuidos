@@ -18,7 +18,7 @@ client: hw_client.o hw_clnt.o hw_xdr.o
 	gcc -o client hw_client.o hw_clnt.o hw_xdr.o -lnsl
 
 server: hw_server.o hw_svc.o
-	gcc -o server hw_server.o hw_svc.o hw_xdr.o -lnsl
+	gcc -o server hw_server.o hw_svc.o hw_xdr.o -lnsl -pthreads
 
 .PHONY: clean
 
