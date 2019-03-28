@@ -5,9 +5,9 @@ struct param {
 
 program PROG {
 	version VERS {
-		string func0(void)   = 1;
-		int    func1(string) = 2;
-		int    func2(int)    = 3;
+		string getMessages(void)   = 1;
+		int    sendMessage(string) = 2;
+		int    connect(string)    = 3;
 		int    func3(param)  = 4;
 	} = 1;
 } = 0x30009999;
