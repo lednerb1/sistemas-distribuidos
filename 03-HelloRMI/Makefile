@@ -3,19 +3,19 @@ JAR=/usr/local/jdk1.8.0_131/bin/jar
 JAVA=/usr/local/jdk1.8.0_131/bin/java
 JAVAC=/usr/local/jdk1.8.0_131/bin/javac
 
-JFLAGS = -g 
+JFLAGS = -g
 .SUFFIXES: .java .class
 .java.class:
 	$(JAVAC) $(JFLAGS) $*.java
 
 CLASSES = \
-	HelloServer.java\
-	HelloClient.java\
-	HelloWorld.java
+	Server.java\
+	Client.java\
+	ServerIDL.java
 
 default: classes
 
 classes: $(CLASSES:.java=.class)
 
 clean:
-	rm -f *.class 
+	rm -f *.class
