@@ -2,7 +2,7 @@ all: client server main_file
 
 hw.h: hw.x
 	rpcgen hw.x
-	
+
 hw_svc.c hw_clnt.c hw_client.c: hw.h
 
 hw_xdr.o: hw_xdr.c
@@ -15,10 +15,10 @@ main_file: main_file.c tools.o
 	gcc -o main_file tools.o main_file.c
 
 client: hw_client.o hw_clnt.o hw_xdr.o
-	gcc -o client hw_client.o hw_clnt.o hw_xdr.o -lnsl
+	gcc -o client hw_client.o hw_clnt.o hw_xdr.o tools.c -lnsl -pthread
 
 server: hw_server.o hw_svc.o
-	gcc -o server hw_server.o hw_svc.o hw_xdr.o -lnsl -pthreads
+	gcc -o server hw_server.o hw_svc.o hw_xdr.o -lnsl
 
 .PHONY: clean
 

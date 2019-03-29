@@ -1,17 +1,53 @@
 #include <stdio.h>
+#include "tools.h"
 #include <rpc/rpc.h>
 #include <pthread.h>
+#include <unistd.h>
 
 // Interface gerada pelo RPCGen a partir da IDL (hw.x) especificada
 #include "hw.h"
 
-void *sendMessageThread(void * arg){
+CLIENT *cl;
+char * name;
+int fileCounter = 0;
 
+static void *sendMessageThread(void * arg){
+	int e;
+	getchar();
+
+	while(1){
+		char * fileName = (char*) malloc(sizeof(char)*100);
+		FILE * arq;
+		char * line;
+
+		printf("SENDING_THREAD: Pressione ENTER para enviar o arquivo chat%s-%d.chat", name, fileCounter);
+		getchar();
+
+		sprintf(fileName, "chat%s-%d.chat", name, fileCounter);
+		arq = fopen(fileName, "r");
+
+		if(arq == NULL){
+			printf("SENDING_THREAD: Arquivo \"%s\" nao encontrado\n", fileName);
+			free(fileName);
+			continue;
+		}
+
+		printf("SENDING_THREAD: Enviando arquivo\n");
+		while((line = readline(arq)) != NULL)
+			if(sendmessage_1(&line, cl) == 0){
+				break;
+			}
+		printf("SENDING_THREAD: Arquivo enviado");
+		fileCounter++;
+		free(arq);
+		free(fileName);
+	}
+
+	return 1;
 }
 
 int main (int argc, char *argv[]) {
 	// Estrutura RPC de comunicação
-	CLIENT *cl;
 
 	// Parâmetros das funçcões
 	char        *par_f1 = (char *) malloc(256*sizeof(char));
@@ -38,10 +74,25 @@ int main (int argc, char *argv[]) {
 		exit(1);
 	}
 
-	pthread_t * sendThread;
-	int state = pthread_create(sendThread, NULL, sendMessageThread, NULL);
+	name = malloc(sizeof(char)*30);
+	printf("Nome: ");
+	scanf("%[^\n]s", name);
 
-
+	int * connected = connect_1(&name, cl);
+	if(connected == NULL){
+		printf("nao pode conectar");
+		exit(1);
+	}
+	pthread_t sendThread;
+	pthread_attr_t attr;
+	int s = pthread_attr_init(&attr);
+	if(s != 0){
+		printf("thread attr initialization error");
+		exit(1);
+	}
+	int state = pthread_create(&sendThread, &attr, &sendMessageThread, NULL);
+	int a = pthread_join(sendThread, NULL);
+	printf("E");
 	// Atribuições de valores para os parâmetros
 	// strcpy (par_f1, argv[2]);
 	// par_f2 = 1;

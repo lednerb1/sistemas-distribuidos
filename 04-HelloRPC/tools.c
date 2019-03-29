@@ -25,14 +25,17 @@ char *readline (FILE *file){
 
   getLine = (char *) malloc (256*sizeof(char));
   fseek( file, cont, SEEK_SET );
+
   for (;;cont++) {
     c = fgetc( file );
-    if ((linha == 256) || (c ==  EOF)){
+    if ((linha == 255) || (c ==  EOF)){
+      getLine[linha] = '\0';
       //printf ("%d(%c)\n",cont, c);
       return (getLine);
     }
     getLine[linha++] = c;
     //printf ("%d[%d](%c)\n",cont, linha, c);
   }
+  
   return NULL;
 }

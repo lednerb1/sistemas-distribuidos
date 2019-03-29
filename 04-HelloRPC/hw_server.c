@@ -6,7 +6,7 @@
 char * users[10];
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-char **func0_1_svc(void *a, struct svc_req *req) {
+char **getmessages_1_svc(void *a, struct svc_req *req) {
 	static char msg[256];
 	static char *p;
 
@@ -18,28 +18,31 @@ char **func0_1_svc(void *a, struct svc_req *req) {
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-int *func1_1_svc(char **a, struct svc_req *req) {
+int *sendmessage_1_svc(char **a, struct svc_req *req) {
 	static int ret = 1;
-
-	printf ("FUNC1 (%s)\n", *a);
-
+	printf("Message: %s", *a);
+	if(*a = NULL)
+		ret = 0;
+	else if(strlen(*a) == 0)
+		ret = 0;
 	return (&ret);
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-int *connect_1_svc(char *a, struct svc_req *req) {
-	int i;
+int *connect_1_svc(char **a, struct svc_req *req) {
+	static int i;
 	for(i=0; i<10; i++){
 		if(users[i] == NULL){
-			users[i] = strdup(a);
+			users[i] = strdup(*a);
 			break;
 		}
 	}
 	if(i < 10){
-		printf ("%s Connected\n", a);
+		printf ("%s Connected w id %d\n", *a, i);
 		return &i;
 	}
-	return -1;
+	i=-1;
+	return &i;
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
