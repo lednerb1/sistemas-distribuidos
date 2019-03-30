@@ -1,55 +1,64 @@
 #include <rpc/rpc.h>
+#include "server_utils.h"
 #include <string.h>
 // Interface gerada pelo RPCGen a partir da IDL (hw.x) especificada
 #include "hw.h"
 
-char * users[10];
+#define MAX_CLIENTS 10
+
+User* users[MAX_CLIENTS];
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-char **getmessages_1_svc(void *a, struct svc_req *req) {
-	static char msg[256];
-	static char *p;
-
-	printf("FUNC0 (sem parâmetros)\n");
-	strcpy(msg, "Hello Func0!");
-	p = msg;
-
-	return(&p);
+char **getmessages_1_svc(char **name, struct svc_req *req) {
+	char * msg;
+	int i;
+	for(i=0; i<MAX_CLIENTS; i++){
+		if(strcmp(users[i]->name, *name) == 0){
+			msg = u_top(users[i]);
+			u_pop(users[i]);
+		}
+	}
+	return(&msg);
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-int *sendmessage_1_svc(char **a, struct svc_req *req) {
+int *sendmessage_1_svc(struct packet *data, struct svc_req *req) {
 	static int ret = 1;
-	printf("Message: %s", *a);
-	if(*a = NULL)
+	char * message = data->chars.chars_val;
+	int messageId = data->idx;
+	int t = strlen(message);
+	printf("Message: %s\n", message);
+	printf("Size: %d", t);
+
+	if(message == NULL){
 		ret = 0;
-	else if(strlen(*a) == 0)
+	}
+	else if(t == 0){
 		ret = 0;
+	}else {
+		for(int i=0; i<MAX_CLIENTS; i++){
+			if(users[i] != NULL){
+				u_add(users[i], message, messageId);
+			}
+		}
+	}
+
 	return (&ret);
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-int *connect_1_svc(char **a, struct svc_req *req) {
+int *connect_1_svc(char **name, struct svc_req *req) {
 	static int i;
-	for(i=0; i<10; i++){
+	for(i=0; i<MAX_CLIENTS; i++){
 		if(users[i] == NULL){
-			users[i] = strdup(*a);
+			users[i] = createUser(*name);
 			break;
 		}
 	}
 	if(i < 10){
-		printf ("%s Connected w id %d\n", *a, i);
+		printf ("%s Connected with id %d\n", *name, i);
 		return &i;
 	}
 	i=-1;
 	return &i;
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-int *func3_1_svc(struct param *a, struct svc_req *req) {
-	static int ret=0;
-
-	printf ("FUNC3 (%d/%d)\n", a->arg1, a->arg2);
-	ret = a->arg1 * a->arg2;
-	return (&ret);
 }

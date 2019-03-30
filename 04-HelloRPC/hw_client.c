@@ -12,15 +12,19 @@ char * name;
 int fileCounter = 0;
 
 static void *sendMessageThread(void * arg){
+
 	int e;
+	int messageId=0;
 	getchar();
 
 	while(1){
+		struct packet * p = (struct packet *) malloc(sizeof(struct packet));
 		char * fileName = (char*) malloc(sizeof(char)*100);
 		FILE * arq;
 		char * line;
+		p->idx = messageId;
 
-		printf("SENDING_THREAD: Pressione ENTER para enviar o arquivo chat%s-%d.chat", name, fileCounter);
+		printf("SENDING_THREAD: Pressione ENTER para enviar o arquivo chat%s-%d.chat\n", name, fileCounter);
 		getchar();
 
 		sprintf(fileName, "chat%s-%d.chat", name, fileCounter);
@@ -33,11 +37,14 @@ static void *sendMessageThread(void * arg){
 		}
 
 		printf("SENDING_THREAD: Enviando arquivo\n");
-		while((line = readline(arq)) != NULL)
-			if(sendmessage_1(&line, cl) == 0){
+		while((p->chars.chars_val = readline(arq)) != NULL){
+			p->chars.chars_len = strlen(p->chars.chars_val);
+			printf("SENDING_THREAD:\nMessage: %s\n", p->chars.chars_val);
+			if(*(sendmessage_1(p, cl)) == 0){
 				break;
 			}
-		printf("SENDING_THREAD: Arquivo enviado");
+		}
+		printf("SENDING_THREAD: Arquivo enviado\n");
 		fileCounter++;
 		free(arq);
 		free(fileName);
@@ -50,9 +57,9 @@ int main (int argc, char *argv[]) {
 	// Estrutura RPC de comunicação
 
 	// Parâmetros das funçcões
-	char        *par_f1 = (char *) malloc(256*sizeof(char));
-	int          par_f2;
-	struct param par_f3;
+	char         *par_f1 = (char *) malloc(256*sizeof(char));
+	int           par_f2;
+	struct packet par_f3;
 
 	// Retorno das funções
 	char **ret_f0 = NULL;

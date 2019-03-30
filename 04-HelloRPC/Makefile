@@ -11,21 +11,24 @@ hw_xdr.o: hw_xdr.c
 tools.o: tools.c
 	gcc -c tools.c -o tools.o
 
-main_file: main_file.c tools.o
-	gcc -o main_file tools.o main_file.c
+server_utils.o: server_utils.c
+	gcc -c server_utils.c
+
+main_file: main_file.c tools.o server_utils.o
+	gcc -o main_file tools.o server_utils.o main_file.c
 
 client: hw_client.o hw_clnt.o hw_xdr.o
 	gcc -o client hw_client.o hw_clnt.o hw_xdr.o tools.c -lnsl -pthread
 
-server: hw_server.o hw_svc.o
-	gcc -o server hw_server.o hw_svc.o hw_xdr.o -lnsl
+server: hw_server.o hw_svc.o server_utils.o tools.o
+	gcc -o server hw_server.o hw_svc.o hw_xdr.o tools.o server_utils.o -lnsl
 
 .PHONY: clean
 
 clean:
 	-rm *.o
-	-rm client*
-	-rm server*
+	-rm client
+	-rm server
 	-rm main_file
 	-rm *.serv
 	-rm hw.h

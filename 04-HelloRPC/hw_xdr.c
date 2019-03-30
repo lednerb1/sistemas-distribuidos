@@ -6,13 +6,14 @@
 #include "hw.h"
 
 bool_t
-xdr_param (XDR *xdrs, param *objp)
+xdr_packet (XDR *xdrs, packet *objp)
 {
 	register int32_t *buf;
 
-	 if (!xdr_int (xdrs, &objp->arg1))
+	 if (!xdr_array (xdrs, (char **)&objp->chars.chars_val, (u_int *) &objp->chars.chars_len, ~0,
+		sizeof (char), (xdrproc_t) xdr_char))
 		 return FALSE;
-	 if (!xdr_int (xdrs, &objp->arg2))
+	 if (!xdr_int (xdrs, &objp->idx))
 		 return FALSE;
 	return TRUE;
 }
