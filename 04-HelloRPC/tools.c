@@ -15,19 +15,14 @@ Queue * createQueue(int id){
 void add(Queue * queue, char * message, int messageId){
   // Start looking for messageId.
   Queue * next = queue;
-  size_t tam = strlen(message);
-  char * teste = strdup(message);
-  printf("Received message to add size %d\n", tam);
-  if(tam == 0){
-      printf("wasnull\n");
-      return;
-  }
+  printf("Message ID %d", messageId);
   while(next->next != NULL && next->messageId != messageId){
     next = next->next;
   }
   // If reached end of queue and have not found messageId create a new Node.
   if(next->next == NULL && next->messageId != messageId){
     next->next = createQueue(messageId);
+    next = next->next;
   }
 
   // Now add content as normal.
@@ -98,10 +93,11 @@ char *readline (FILE *file){
       c = '\0';
       getLine[linha] = c;
 
-      //printf ("%d(%c)\n",cont, c);
+     //printf ("%d(%c)\n",cont, c);
       return (getLine);
     }
     getLine[linha++] = c;
+
     //printf ("%d[%d](%c)\n",cont, linha, c);
   }
 

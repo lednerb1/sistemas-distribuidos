@@ -45,11 +45,14 @@ static void *sendMessageThread(void * arg){
 				break;
 			printf("SENDING_THREAD: Enviando fragmento\n");
 			if(*(sendmessage_1(p, cl)) == 0){
+				free(p->chars.chars_val);
 				break;
 			}
+			free(p->chars.chars_val);
 		}
 		printf("SENDING_THREAD: Arquivo enviado\n");
 		fileCounter++;
+		messageId++;
 		free(arq);
 		free(fileName);
 	}

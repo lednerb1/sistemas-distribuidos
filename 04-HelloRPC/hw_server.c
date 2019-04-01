@@ -40,9 +40,11 @@ int *sendmessage_1_svc(struct packet *data, struct svc_req *req) {
 	// printf("Size: %d\n", t);
 
 	if(message == NULL){
+		printf("sendmessage_1_svc: Message is null\n");
 		ret = 0;
 	}
 	else if(t == 0){
+		printf("sendmessage_1_svc: Message length is null\n");
 		ret = 0;
 	}else {
 		for(int i=0; i<MAX_CLIENTS; i++){
