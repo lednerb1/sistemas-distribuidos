@@ -3,10 +3,17 @@ struct packet {
 	int idx;
 };
 
+struct serverPacket {
+	char chars<>;
+	int amt;
+};
+
+typedef serverPacket sPacket<>;
+
 program PROG {
 	version VERS {
-		string getMessages(string)   = 1;
-		int    sendMessage(packet) 	 = 2;
-		int    connect(string)    	 = 3;
+		sPacket getMessages(string)	= 1;
+		int		sendMessage(packet)	= 2;
+		int		connect(string)		= 3;
 	} = 1;
 } = 0x30009999;

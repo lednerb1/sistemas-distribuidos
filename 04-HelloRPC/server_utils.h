@@ -8,5 +8,6 @@ typedef struct user {
 // User function declarations
 User * createUser(char * name);
 void u_add(User * user, char * message, int messageId);
-char * u_top(User * user);
+int u_amt(User * user);
+char ** u_top(User * user);
 void u_pop(User * user);

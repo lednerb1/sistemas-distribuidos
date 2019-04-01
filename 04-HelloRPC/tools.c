@@ -8,13 +8,20 @@ Queue * createQueue(int id){
   temp->next = NULL;
   temp->data = NULL;
   temp->messageId = id;
-  temp->size = 0;
+  temp->amt = 0;
   return temp;
 }
 
 void add(Queue * queue, char * message, int messageId){
   // Start looking for messageId.
   Queue * next = queue;
+  size_t tam = strlen(message);
+  char * teste = strdup(message);
+  printf("Received message to add size %d\n", tam);
+  if(tam == 0){
+      printf("wasnull\n");
+      return;
+  }
   while(next->next != NULL && next->messageId != messageId){
     next = next->next;
   }
@@ -24,19 +31,26 @@ void add(Queue * queue, char * message, int messageId){
   }
 
   // Now add content as normal.
-  if(next->size == 0){
-    next->data = strdup(message);
-    next->size = strlen(next->data);
+  if(next->amt == 0){
+      next->data = (char**)malloc(sizeof(char*));
+    *(next->data) = strdup(message);
+    printf("\nNova String\n");
+    next->amt++;
   }else {
-    size_t needed = (size_t)strlen(message) + 1;
-    next->data = (char*) realloc(next->data, next->size + needed);
-    memcpy(next->data + next->size, message, needed);
-    next->size += needed;
+    next->data = (char**)realloc(next->data, sizeof(char*) * next->amt);
+    printf("\nConcatenando\n");
+    *(next->data + next->amt*sizeof(char*)) = strdup(message);
+    // printf("\nString atual: %s\n", *(next->data + next->amt*sizeof(char*)));
+    next->amt++;
   }
 
 }
 
-char * top(Queue * queue){
+int amt(Queue * queue){
+    return queue->amt;
+}
+
+char ** top(Queue * queue){
   return queue->data;
 }
 
@@ -67,17 +81,23 @@ int writeline (char *msg, FILE *file){
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 char *readline (FILE *file){
   static int cont=0;
+  if(file == NULL){
+      cont=0;
+      return NULL;
+  }
   char *getLine = NULL;
   char c;
   int linha=0;
-  printf("function readline: cont = %d\n", cont);
+  //printf("function readline: cont = %d\n", cont);
   getLine = (char *) malloc(256*sizeof(char));
   fseek( file, cont, SEEK_SET );
 
   for (;;cont++) {
     c = fgetc( file );
     if ((linha == 255) || (c ==  EOF)){
-      getLine[linha] = '\0';
+      c = '\0';
+      getLine[linha] = c;
+
       //printf ("%d(%c)\n",cont, c);
       return (getLine);
     }

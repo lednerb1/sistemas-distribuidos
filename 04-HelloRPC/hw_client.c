@@ -35,11 +35,15 @@ static void *sendMessageThread(void * arg){
 			free(fileName);
 			continue;
 		}
-
+		char * reset = readline(NULL);
+		if(reset != NULL)
+			continue;
 		printf("SENDING_THREAD: Enviando arquivo\n");
 		while((p->chars.chars_val = readline(arq)) != NULL){
 			p->chars.chars_len = strlen(p->chars.chars_val);
-			printf("SENDING_THREAD:\nMessage: %s\n", p->chars.chars_val);
+			if(p->chars.chars_len == 0)
+				break;
+			printf("SENDING_THREAD: Enviando fragmento\n");
 			if(*(sendmessage_1(p, cl)) == 0){
 				break;
 			}

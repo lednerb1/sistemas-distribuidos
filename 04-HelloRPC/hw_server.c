@@ -9,16 +9,25 @@
 User* users[MAX_CLIENTS];
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-char **getmessages_1_svc(char **name, struct svc_req *req) {
-	char * msg;
+sPacket *getmessages_1_svc(char **name, struct svc_req *req) {
+	char ** msg;
+	int amt;
 	int i;
 	for(i=0; i<MAX_CLIENTS; i++){
 		if(strcmp(users[i]->name, *name) == 0){
+			printf("User found, getting messages\n");
 			msg = u_top(users[i]);
+			amt = u_amt(users[i]);
 			u_pop(users[i]);
 		}
 	}
-	return(&msg);
+	sPacket pack;
+	struct serverPacket temp;
+	pack.sPacket_val = malloc(sizeof(temp) * amt);
+	for(int i=0; i<amt; i++){
+		(pack.sPacket_val + sizeof(temp) * amt)->chars.chars_val = strdup(*(msg + i*sizeof(char*)));
+	}
+	return(&pack);
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -27,8 +36,8 @@ int *sendmessage_1_svc(struct packet *data, struct svc_req *req) {
 	char * message = data->chars.chars_val;
 	int messageId = data->idx;
 	int t = strlen(message);
-	printf("Message: %s\n", message);
-	printf("Size: %d", t);
+	// printf("Message: %s\n", message);
+	// printf("Size: %d\n", t);
 
 	if(message == NULL){
 		ret = 0;
@@ -38,6 +47,7 @@ int *sendmessage_1_svc(struct packet *data, struct svc_req *req) {
 	}else {
 		for(int i=0; i<MAX_CLIENTS; i++){
 			if(users[i] != NULL){
+				printf("Adding message to user %d\n", i);
 				u_add(users[i], message, messageId);
 			}
 		}

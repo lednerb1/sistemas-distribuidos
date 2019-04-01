@@ -11,7 +11,11 @@ void u_add(User * user, char * message, int messageId){
   add(user->messages, message, messageId);
 }
 
-char * u_top(User * user){
+int u_amt(User * user){
+    return amt(user->messages);
+}
+
+char ** u_top(User * user){
   return top(user->messages);
 }
 
