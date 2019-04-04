@@ -1,0 +1,8 @@
+Mateus Seenem Tavares
+
+make
+
+//Servidor 
+java Servidorzinho
+
+//adicionar rm -rf */ remove os diretorios, caso deseje
