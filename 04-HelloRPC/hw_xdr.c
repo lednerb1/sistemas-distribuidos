@@ -10,6 +10,9 @@ xdr_packet (XDR *xdrs, packet *objp)
 {
 	register int32_t *buf;
 
+	 if (!xdr_array (xdrs, (char **)&objp->nome.nome_val, (u_int *) &objp->nome.nome_len, ~0,
+		sizeof (char), (xdrproc_t) xdr_char))
+		 return FALSE;
 	 if (!xdr_array (xdrs, (char **)&objp->chars.chars_val, (u_int *) &objp->chars.chars_len, ~0,
 		sizeof (char), (xdrproc_t) xdr_char))
 		 return FALSE;

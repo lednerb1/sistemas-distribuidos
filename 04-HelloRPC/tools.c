@@ -15,12 +15,15 @@ Queue * createQueue(int id){
 void add(Queue * queue, char * message, int messageId){
   // Start looking for messageId.
   Queue * next = queue;
-  printf("Message ID %d", messageId);
+  printf("Message ID %d\n", messageId);
+  // printf("Message: %s\n", message);
   while(next->next != NULL && next->messageId != messageId){
+    // printf("Next\n");
     next = next->next;
   }
   // If reached end of queue and have not found messageId create a new Node.
   if(next->next == NULL && next->messageId != messageId){
+    // printf("No next, create new one\n");
     next->next = createQueue(messageId);
     next = next->next;
   }
@@ -32,11 +35,18 @@ void add(Queue * queue, char * message, int messageId){
     printf("\nNova String\n");
     next->amt++;
   }else {
-    next->data = (char**)realloc(next->data, sizeof(char*) * next->amt);
+    char ** tempBuff;
+    if((tempBuff = (char**)realloc(next->data, sizeof(char*) * next->amt)) == NULL){
+      free(next->data);
+      printf("MEMORY ALLOCATION PROBLEM: Realloc error on tools.c\n");
+      return;
+    }
+    next->data = tempBuff;
     printf("\nConcatenando\n");
     *(next->data + next->amt*sizeof(char*)) = strdup(message);
-    // printf("\nString atual: %s\n", *(next->data + next->amt*sizeof(char*)));
+    //printf("\nString atual: %s\n", *(next->data + next->amt*sizeof(char*)));
     next->amt++;
+    printf("Message added\n");
   }
 
 }

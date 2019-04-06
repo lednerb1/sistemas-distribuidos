@@ -1,4 +1,5 @@
 struct packet {
+	char nome<>;
 	char chars<>;
 	int idx;
 };

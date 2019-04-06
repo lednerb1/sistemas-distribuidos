@@ -22,8 +22,9 @@ static void *sendMessageThread(void * arg){
 		char * fileName = (char*) malloc(sizeof(char)*100);
 		FILE * arq;
 		char * line;
+		p->nome.nome_val = strdup(name);
+		p->nome.nome_len = strlen(name);
 		p->idx = messageId;
-
 		printf("SENDING_THREAD: Pressione ENTER para enviar o arquivo chat%s-%d.chat\n", name, fileCounter);
 		getchar();
 
@@ -45,16 +46,21 @@ static void *sendMessageThread(void * arg){
 				break;
 			printf("SENDING_THREAD: Enviando fragmento\n");
 			if(*(sendmessage_1(p, cl)) == 0){
+				printf("Returned 0 -> break\t");
 				free(p->chars.chars_val);
+				printf("freed\n");
 				break;
 			}
+			printf("returned 1 -> continuing\t");
 			free(p->chars.chars_val);
+			printf("Freed\n");
 		}
 		printf("SENDING_THREAD: Arquivo enviado\n");
 		fileCounter++;
 		messageId++;
 		free(arq);
 		free(fileName);
+		free(p);
 	}
 
 	return 1;
@@ -76,7 +82,7 @@ int main (int argc, char *argv[]) {
 
 
 	// Verificação dos parâmetros oriundos da console
-	if (argc != 3) {
+	if (argc != 2) {
 		printf("ERRO: ./client <hostname> <msg>\n");
 		exit(1);
 	}

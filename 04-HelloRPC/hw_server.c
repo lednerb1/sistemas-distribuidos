@@ -1,8 +1,10 @@
 #include <rpc/rpc.h>
-#include "server_utils.h"
 #include <string.h>
+#include <pthread.h>
 // Interface gerada pelo RPCGen a partir da IDL (hw.x) especificada
 #include "hw.h"
+#include "server_utils.h"
+
 
 #define MAX_CLIENTS 10
 
@@ -21,7 +23,7 @@ sPacket *getmessages_1_svc(char **name, struct svc_req *req) {
 			u_pop(users[i]);
 		}
 	}
-	sPacket pack;
+	static sPacket pack;
 	struct serverPacket temp;
 	pack.sPacket_val = malloc(sizeof(temp) * amt);
 	for(int i=0; i<amt; i++){
@@ -32,12 +34,22 @@ sPacket *getmessages_1_svc(char **name, struct svc_req *req) {
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 int *sendmessage_1_svc(struct packet *data, struct svc_req *req) {
+	pthread_mutex_init(&lock, NULL);
 	static int ret = 1;
+	char * name = data->nome.nome_val;
+	char fileName[100];
 	char * message = data->chars.chars_val;
 	int messageId = data->idx;
 	int t = strlen(message);
-	// printf("Message: %s\n", message);
-	// printf("Size: %d\n", t);
+
+	sprintf(fileName, "%s-%d", name, messageId);
+	printf("%s", fileName);
+	FILE * arq = fopen(fileName, "w");
+
+	if(arq != NULL){
+		fseek(arq, 0, SEEK_END);
+		fprintf(arq, "%s", message);
+	}
 
 	if(message == NULL){
 		printf("sendmessage_1_svc: Message is null\n");
@@ -47,14 +59,28 @@ int *sendmessage_1_svc(struct packet *data, struct svc_req *req) {
 		printf("sendmessage_1_svc: Message length is null\n");
 		ret = 0;
 	}else {
+		ret = 1;
+
 		for(int i=0; i<MAX_CLIENTS; i++){
 			if(users[i] != NULL){
-				printf("Adding message to user %d\n", i);
-				u_add(users[i], message, messageId);
+				pthread_t sendThread;
+				pthread_attr_t attr;
+				int s = pthread_attr_init(&attr);
+				if(s != 0){
+					printf("sendmessage_1_svc: Thread attr initialization error\n");
+					exit(1);
+				}else{
+					printf("sendmessage_1_svc: Creating Thread: ADD MESSAGE TO USER %d\n", i);
+				}
+				u_add_parameters * param = (u_add_parameters*) malloc(sizeof(u_add_parameters));
+				param->user = users[i];
+				param->message = message;
+				param->messageId = &messageId;
+				sendThread = pthread_create(&sendThread, &attr, &u_add, param);
 			}
 		}
 	}
-
+	printf("finished adding messages\n");
 	return (&ret);
 }
 
