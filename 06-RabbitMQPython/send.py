@@ -5,10 +5,22 @@ connection = pika.BlockingConnection(pika.ConnectionParameters(
         host='localhost'))
 channel = connection.channel()
 
-channel.queue_declare(queue='hello')
+channel.exchange_declare(exchange='plogs', exchange_type='fanout')
 
-channel.basic_publish(exchange='',
-                      routing_key='hello',
-                      body='Hello World!')
-print(" [x] Sent 'Hello World!'")
+result = channel.queue_declare('', exclusive=True)
+
+queueName = result.method.queue
+
+channel.queue_bind(exchange='plogs', queue=queueName)
+
+channel.basic_publish(exchange='plogs',
+                      routing_key='',
+                      body='testando')
+
+def responseCallback(ch, method, properties, body):
+    print('Received answer: {}'.format(body))
+
+channel.basic_consume(responseCallback, queue=queueName, no_ack=True)
+
+channel.start_consuming()
 connection.close()

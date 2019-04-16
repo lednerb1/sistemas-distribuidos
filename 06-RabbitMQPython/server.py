@@ -5,20 +5,28 @@ connection = pika.BlockingConnection(pika.ConnectionParameters(
         host='localhost'))
 channel = connection.channel()
 
-channel.queue_declare(queue='peter')
+channel.exchange_declare(exchange='plogs', exchange_type='fanout')
 
-def newMessageCallback(ch, method, properties, body):
+result = channel.queue_declare(' ',exclusive=True)
+
+queueName = result.method.queue
+
+channel.queue_bind(exchange='plogs', queue=queueName)
+
+def newMessageCallback(ch, method, properties, msg):
+    print('--')
     print(ch)
+    print('--')
     print(method)
+    print('--')
     print(properties)
-    print(body)
-    print(" [x] Received {}".format(body))
+    print('--')
+    print(" [x] Received {}".format(msg))
+    print('--')
+    channel.basic_publish(exchange='plogs', routing_key='', body=msg.upper())
 
-channel.basic_consume(newMessageCallback,
-                      queue='peter',
-                      no_ack=True)
+channel.basic_consume(newMessageCallback, queue=queueName, no_ack=True)
 
 print(' [*] Waiting for messages. To exit press CTRL+C')
 channel.start_consuming()
-
 # connection.close()
