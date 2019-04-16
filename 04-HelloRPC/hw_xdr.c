@@ -10,10 +10,37 @@ xdr_packet (XDR *xdrs, packet *objp)
 {
 	register int32_t *buf;
 
+	 if (!xdr_array (xdrs, (char **)&objp->nome.nome_val, (u_int *) &objp->nome.nome_len, ~0,
+		sizeof (char), (xdrproc_t) xdr_char))
+		 return FALSE;
 	 if (!xdr_array (xdrs, (char **)&objp->chars.chars_val, (u_int *) &objp->chars.chars_len, ~0,
 		sizeof (char), (xdrproc_t) xdr_char))
 		 return FALSE;
 	 if (!xdr_int (xdrs, &objp->idx))
+		 return FALSE;
+	return TRUE;
+}
+
+bool_t
+xdr_serverPacket (XDR *xdrs, serverPacket *objp)
+{
+	register int32_t *buf;
+
+	 if (!xdr_array (xdrs, (char **)&objp->chars.chars_val, (u_int *) &objp->chars.chars_len, ~0,
+		sizeof (char), (xdrproc_t) xdr_char))
+		 return FALSE;
+	 if (!xdr_int (xdrs, &objp->amt))
+		 return FALSE;
+	return TRUE;
+}
+
+bool_t
+xdr_sPacket (XDR *xdrs, sPacket *objp)
+{
+	register int32_t *buf;
+
+	 if (!xdr_array (xdrs, (char **)&objp->sPacket_val, (u_int *) &objp->sPacket_len, ~0,
+		sizeof (serverPacket), (xdrproc_t) xdr_serverPacket))
 		 return FALSE;
 	return TRUE;
 }

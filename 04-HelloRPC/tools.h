@@ -4,15 +4,16 @@
 
 typedef struct queue {
   struct queue* next;
-  char* data;
+  char** data;
   int messageId;
-  size_t size;
+  size_t amt;
 } Queue;
 
 // Queue function declarations
 Queue * createQueue(int id);
 void add(Queue * queue, char * message, int messageId); // Recebe a mensagem e o id, e coloca no nodo enquanto o id for o mesmo
-char * top(Queue * queue);
+char ** top(Queue * queue);
+int amt(Queue * queue);
 void pop(Queue ** queue);
 
 
