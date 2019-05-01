@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+import pika
+
+user = input('Enter your name: ')
+
+connection = pika.BlockingConnection(pika.ConnectionParameters(
+        host='localhost'))
+channel = connection.channel()
+
+channel.exchange_declare(exchange='plogs', exchange_type='fanout')
+channel.exchange_declare(exchange='ulogs', exchange_type='fanout')
+
+result = channel.queue_declare('', exclusive=True)
+
+queueName = result.method.queue
+
+channel.queue_bind(exchange='ulogs', queue=queueName)
+
+while True:
+	channel.basic_publish(exchange='plogs',
+        	              routing_key='',
+                      body=user+'\\>>\\'+'01'+'\\>>\\'+'testando')
+
+def responseCallback(ch, method, properties, body):
+    print('Received answer: {}'.format(body.decode()))
+
+channel.basic_consume(responseCallback, queue=queueName, no_ack=True)
+
+channel.start_consuming()
+connection.close()

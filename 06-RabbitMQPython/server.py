@@ -2,7 +2,8 @@
 import pika
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(
-        host='localhost'))
+        host='sdi-1',
+	credentials=pika.PlainCredentials(username='sdi', password='sdi')))
 channel = connection.channel()
 
 channel.exchange_declare(exchange='plogs', exchange_type='fanout')
