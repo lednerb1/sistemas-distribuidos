@@ -23,25 +23,37 @@ dbx = dropbox.Dropbox(TOKEN)
 dbx.users_get_current_account()
 
 class Client:
-
-    __init__(self,name):
+    def __init__(self, name):
         self.name = name
+        self.input = 'f-ent_' + name + '.txt'
+        self.output = 'f-saida_' + name + '.txt'
+        self.timestamp = None
 
 clients = []
 
-def getFile(): # returns file (?)
-    pass
+def read(file): # void
+    with open('Server/' + clients[i].input, 'a') as file:
+        print(msg)
+        arq.write(msg)
 
 def broadcast(): # void
     pass
 
-def newConnection(): # returns client
-    pass
-
-def dropConnection(client): # void
-    pass
-
 def serverLoop(): # void
-    for client in clients:
-        if client.update():
-            broadcast(client)
+    while True:
+        # Check for file updates
+        files = dbx.files_list_folder('/Client')
+
+        for file in files.entries:
+            filename = file.name.split('_')[1].split('.')[0]
+            for client in clients:
+                if filename == client.name:
+                    if file.client_modified != client.timestamp:
+                        read(file)
+                        broadcast(file)
+
+# files = dbx.files_list_folder('')
+# for i in range(len(files.entries)):
+#     dbx.files_delete(files.entries[i].name)
+
+serverLoop()
