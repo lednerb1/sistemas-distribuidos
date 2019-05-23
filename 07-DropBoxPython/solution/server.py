@@ -32,11 +32,12 @@ class Client:
 clients = []
 
 def read(file): # void
-    with open('Server/' + clients[i].input, 'a') as file:
+    with open('Server/' + clients[i].input, 'a') as f:
         print(msg)
-        arq.write(msg)
+        f.write(msg)
 
-def broadcast(): # void
+def broadcast(file): # void
+    with open('')
     pass
 
 def serverLoop(): # void
@@ -46,11 +47,16 @@ def serverLoop(): # void
 
         for file in files.entries:
             filename = file.name.split('_')[1].split('.')[0]
-            for client in clients:
+            for client in clients: # Loop pelos clientes para ver de quem eh a msg
                 if filename == client.name:
-                    if file.client_modified != client.timestamp:
+                    if file.client_modified != client.timestamp:                # Verificar se a comparacao faz sentido
                         read(file)
                         broadcast(file)
+                        break
+            else:   # Se nao for de ngm cria um novo cliente
+                clients.append(Client(filename))
+                read(file)
+                broadcast(file)
 
 # files = dbx.files_list_folder('')
 # for i in range(len(files.entries)):
