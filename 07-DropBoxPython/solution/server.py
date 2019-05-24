@@ -31,14 +31,22 @@ class Client:
 
 clients = []
 
-def read(file): # void
-    with open('Server/' + clients[i].input, 'a') as f:
+def read(file, client): # void
+    dbx.files_download_to_file('Client/' + file.name, '/Client/' + file.name)
+    with open('Client/' + client.input, 'a') as f:
         print(msg)
         f.write(msg)
+    dbx.files_upload(open('Client/' + client.input).read().encode(),'/Server/' + client.output, mode=WriteMode('overwrite'))
 
-def broadcast(file): # void
-    with open('')
-    pass
+def broadcast(file, client): # void
+    with open('Client/' + client.input) as f:
+        txt = f.read()
+        for c in clients:
+            if c == client:
+                continue
+            with open('Client/' + c.input) as up:
+                up.write(txt)
+            dbx.files_upload(open('Client/' + c.input).read().encode(),'/Client/' + c.input, mode=WriteMode('overwrite'))
 
 def serverLoop(): # void
     while True:
@@ -46,20 +54,20 @@ def serverLoop(): # void
         files = dbx.files_list_folder('/Client')
 
         for file in files.entries:
+            if '-ent_' in file.name:
+                continue
             filename = file.name.split('_')[1].split('.')[0]
+            print(filename)
             for client in clients: # Loop pelos clientes para ver de quem eh a msg
                 if filename == client.name:
                     if file.client_modified != client.timestamp:                # Verificar se a comparacao faz sentido
-                        read(file)
-                        broadcast(file)
+                        read(file, client)
+                        broadcast(file, client)
                         break
             else:   # Se nao for de ngm cria um novo cliente
                 clients.append(Client(filename))
-                read(file)
-                broadcast(file)
+                read(file, clients[-1])
+                broadcast(file, clients[-1])
 
-# files = dbx.files_list_folder('')
-# for i in range(len(files.entries)):
-#     dbx.files_delete(files.entries[i].name)
 
 serverLoop()
